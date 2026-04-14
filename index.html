@@ -1,0 +1,2511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALEX RADUNTSEV - Portfolio / Портфолио</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter + Geist -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Geist Font (system fallback for now) -->
+    <!-- GSAP Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Matter.js Physics Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script>
+        
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        geist: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#111111',
+                            light: '#ffffff',
+                            gray: '#888888',
+                            hero: '#ffffff',
+                            accent: '#ff4500' 
+                        },
+                        ref: {
+                            bg: '#000000',
+                            'text-primary': '#E5E5E5',
+                            'text-secondary': '#999999',
+                            'text-tertiary': '#333333',
+                            'card-bg': '#1A1A1A',
+                            'overlay': 'rgba(34, 34, 34, 0.8)'
+                        }
+                    },
+                    spacing: {
+                        '32px': '32px',
+                        '64px': '64px',
+                        '128px': '128px',
+                        '192px': '192px',
+                    },
+                    borderRadius: {
+                        '16': '16px',
+                        '8': '8px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        #preloader {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #fff; /* Светлый фон */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+.wireframe-container {
+    width: 320px;
+    max-width: 85vw; /* Адаптация под мобильные */
+    height: 420px;
+    position: relative;
+    border: 0.5px solid rgba(0, 0, 0, 0.2); /* Темные линии */
+    background: #fff;
+}
+
+.wf-svg { width: 100%; height: 100%; }
+
+.wf-line {
+    fill: none;
+    stroke: #000; /* Черные линии чертежа */
+    stroke-width: 0.5;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+}
+
+.wf-text {
+    fill: #000;
+    font-size: 5px;
+    opacity: 0;
+    text-transform: lowercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+#enter-btn {
+    margin-top: 15px;
+    width: 320px;
+    max-width: 85vw;
+    padding: 16px 0;
+    background: transparent;
+    border: 0.5px solid rgba(0, 0, 0, 0.4);
+    color: #000;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+
+#enter-btn:hover {
+    background: #000;
+    color: #fff;
+}
+
+body.loading { overflow: hidden; }
+
+        html { scroll-behavior: smooth; }
+        body { 
+            background-color: #000000; 
+            -webkit-font-smoothing: antialiased;
+        }
+        * { font-family: 'Inter', sans-serif !important; }
+        
+        /* Логика переключения языков */
+        body.lang-ru .lang-en { display: none !important; }
+        body.lang-en .lang-ru { display: none !important; }
+        
+        /* Border radius utilities */
+        .rounded-16 { border-radius: 16px; }
+        .rounded-8 { border-radius: 8px; }
+        
+        .img-container { overflow: hidden; position: relative; }
+        .img-zoom { transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .img-container:hover .img-zoom { transform: scale(1.03); }
+        
+        /* object-fit: cover для всех img внутри .img-container */
+        .img-container img { object-fit: cover; width: 100%; height: 100%; }
+
+        /* === REFERENCE DESIGN COLOR SCHEME === */
+        .bg-ref-bg { background-color: #ffffff; }
+        .bg-ref-card-bg { background-color: #c4c4c4; }
+        .text-ref-primary { color: #E5E5E5; }
+        .text-ref-secondary { color: #999999; }
+        
+        /* === RESPONSIVE ADJUSTMENTS FOR REDESIGNED SECTIONS === */
+        @media (max-width: 768px) {
+            .font-geist { font-size: 32px !important; }
+            .rounded-16 { border-radius: 12px; }
+            .rounded-8 { border-radius: 6px; }
+        }
+
+        /* === СЛАЙДЕР КЕЙСА === */
+        #case-slider-section { background: #111; }
+
+        /* Вертикальный стек изображений без отступов */
+        .case-slide { display: block; width: 100%; }
+        .case-slide img { display: block; width: 100%; height: auto; }
+
+        /* Минибар навигации */
+        #case-minibar {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+            background: rgba(17,17,17,0.92);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: stretch;
+            height: 56px;
+        }
+        #case-minibar.visible { display: flex; }
+        .minibar-btn {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            gap: 8px; color: #fff; font-size: 10px; font-weight: bold;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            border: none; background: transparent; cursor: pointer;
+            transition: background 0.15s;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .minibar-btn:last-child { border-right: none; }
+        .minibar-btn:hover { background: rgba(255,255,255,0.08); }
+        .minibar-btn svg { flex-shrink: 0; }
+
+        
+        .photo-text {
+            position: absolute; bottom: 2rem; left: 2rem;
+            z-index: 10; color: rgba(150, 150, 150, 0.349);
+        }
+        .photo-text-title { font-weight: bold; font-size: 1.125rem; letter-spacing: 0.05em; line-height: 1.2; }
+        .photo-text-sub { font-size: 1rem; letter-spacing: 0.1em; opacity: 0.8; margin-top: 0.25rem; font-weight: 100; }
+        .photo-text:hover { color: rgba(0, 0, 0, 0.363) }
+
+        .gradient-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 40%);
+            z-index: 5; pointer-events: none;
+        }
+
+        /* --- Стили для Hero Физики --- */
+        #physics-container { overflow: hidden; touch-action: none; }
+        .physics-item {
+            position: absolute; top: 0; left: 0;
+            will-change: transform; cursor: grab; user-select: none;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .physics-item:active { cursor: grabbing; }
+        
+        .shape-pill {
+            background-color: #f8f9fc; border: 1px solid #d1d5db; color: #111;
+            border-radius: 9999px; padding: 0.75rem 2rem; font-size: 1.25rem;
+            letter-spacing: 0.05em; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .shape-circle {
+            background-color: #000; color: #fff; border-radius: 50%;
+            width: 5rem; height: 5rem; font-size: 2.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        .flip-container { perspective: 1000px; display: inline-block; }
+        .flip-inner { display: inline-block; transform-origin: top center; transform-style: preserve-3d; }
+
+        #basketball-wrapper { touch-action: none; overflow: hidden; }
+
+        @media (max-width: 768px) {
+            .photo-text { bottom: 1.5rem; left: 1.5rem; }
+            .photo-text-title { font-size: 1rem; }
+            .shape-pill { padding: 0.5rem 1.25rem; font-size: 0.875rem; }
+            .shape-circle { width: 4rem; height: 4rem; font-size: 2rem; }
+        }
+        
+        .view-hidden { display: none !important; }
+        .view-active { display: flex !important; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Кастомный скроллбар для литературы */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d1d5db; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af; 
+        }
+
+        /* Горизонтальный аккордеон для опыта */
+        .exp-item { transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+        .exp-content { transition: opacity 0.5s ease, transform 0.5s ease; }
+        @media (min-width: 768px) {
+            .exp-item:hover { flex-grow: 2.5; background-color: #e5e7eb; }
+            .exp-item:hover .exp-content { opacity: 1; transform: translateY(0); }
+            .exp-item:not(:hover) .exp-content { opacity: 0; transform: translateY(10px); }
+        }
+        @media (max-width: 767px) {
+            .exp-content { opacity: 1; transform: translateY(0); display: block; margin-top: 1rem; }
+        }
+
+        /* === SERVICE CAROUSEL === */
+        #service-carousel-container {
+            position: relative;
+        }
+
+        #service-carousel-container #service-buttons-grid {
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-btn {
+            position: relative;
+            color: #111;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            line-height: 1.3;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            word-wrap: break-word;
+            hyphens: auto;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 2;
+        }
+
+        .service-btn:hover {
+            background-color: #ddd !important;
+        }
+
+        .service-btn.active {
+            color: #fff;
+            background-color: #000 !important;
+        }
+
+        #service-gooey-effect {
+            filter: blur(25px);
+            border-radius: 50%;
+        }
+
+        #service-description-container {
+            position: relative;
+            z-index: 3;
+            background-color: #111;
+            color: #ffffff;
+            overflow: hidden;
+            max-height: 0;
+        }
+
+        #service-description-text {
+            opacity: 0;
+            animation: fadeInText 0.5s ease-in-out 0.2s forwards;
+        }
+
+        @keyframes fadeInText {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #service-description-container.show #service-description-text {
+            animation: fadeInText 0.5s ease-in-out 0.2s forwards;
+        }
+
+        @media (max-width: 768px) {
+            .service-btn {
+                font-size: 0.875rem;
+                min-height: 120px;
+            }
+
+            #service-description-text {
+                font-size: 0.95rem;
+            }
+        }
+        /* ===== MAGIC BENTO CARD SYSTEM ===== */
+
+#magic-spotlight {
+    position: fixed; width: 800px; height: 800px; border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(255,69,0,0.12) 0%, rgba(255,69,0,0.06) 18%, rgba(255,69,0,0.02) 35%, transparent 70%);
+    z-index: 9999; opacity: 0; transform: translate(-50%, -50%);
+    mix-blend-mode: screen; will-change: left, top, opacity; transition: opacity 0.25s ease;
+}
+.magic-card {
+    position: relative; overflow: hidden;
+    transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.35s ease;
+    background-color: #ffffff !important;
+    border: 0.05px solid #ffffff00 !important;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,69,0,0.05);
+}
+.magic-card::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: radial-gradient(circle var(--glow-radius,300px) at var(--glow-x,50%) var(--glow-y,50%),
+        rgba(255,69,0,calc(var(--glow-intensity,0)*0.10)) 0%,
+        rgba(255,69,0,calc(var(--glow-intensity,0)*0.05)) 30%, transparent 70%);
+    pointer-events: none; z-index: 1;
+}
+.magic-card::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    border: 1px solid rgba(0,0,0,0.12,calc(var(--glow-intensity,0)*0.5));
+    pointer-events: none; z-index: 2;
+}
+.magic-card:hover { 
+    cursor: none; /* Скрывает стандартную стрелку при наведении */
+    transform: translateY(-3px); 
+    box-shadow: 0 0 30px rgba(255,69,0,0.20), 0 20px 60px rgba(0,0,0,0.12);}
+.magic-card > * { position: relative; z-index: 3; }
+.magic-card .magic-noise { position: absolute; inset: 0; opacity: 0.01; pointer-events: none; z-index: 0; }
+.magic-ripple { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,69,0,0.35) 0%, transparent 70%); pointer-events: none; z-index: 100; transform: scale(0); }
+.magic-card:hover .exp-description { max-height: 500px !important; }
+
+            .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+            @media (pointer: fine) {
+    .magic-card:hover {
+        cursor: none;
+    }
+}
+
+    /* АНИМАЦИЯ ПОЯЛВНИЯ БЛОКОВ */
+    /* Начальное состояние элементов */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1), 
+                transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+    will-change: opacity, transform;
+}
+
+/* Состояние после активации (когда виден в кадре) */
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Небольшая задержка для правой колонки, чтобы создать эффект очереди */
+.delay-200 {
+    transition-delay: 0.2s;
+}
+
+/* Базовый заголовок появляется просто вверх */
+.reveal-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Карточки, вылетающие слева */
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Карточки, вылетающие справа */
+.reveal-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Общий класс активации */
+.reveal-up.active, .reveal-left.active, .reveal-right.active {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+/* Задержки для создания очереди (стаггер) */
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-400 { transition-delay: 0.4s; }
+
+</style>
+    </style>
+</head>
+<body class="loading p-[2px] flex flex-col font-sans text-ref-primary min-h-screen lang-ru bg-ref-bg">
+    
+    <div id="preloader">
+    <div class="wireframe-container" id="phys-box">
+        <svg class="wf-svg" viewBox="0 0 115 140">
+            <rect class="wf-line" x="5" y="5" width="40" height="4" />
+            <rect class="wf-line" x="5" y="15" width="105" height="20" />
+            <line class="wf-line" x1="5" y1="42" x2="75" y2="42" />
+            <line class="wf-line" x1="5" y1="48" x2="55" y2="48" />
+            <rect class="wf-line" x="5" y="65" width="30" height="30" />
+            <line class="wf-line" x1="5" y1="65" x2="35" y2="95" /><line class="wf-line" x1="35" y1="65" x2="5" y2="95" />
+            <rect class="wf-line" x="42.5" y="65" width="30" height="30" />
+            <line class="wf-line" x1="42.5" y1="65" x2="72.5" y2="95" /><line class="wf-line" x1="72.5" y1="65" x2="42.5" y2="95" />
+            <rect class="wf-line" x="80" y="65" width="30" height="30" />
+            <line class="wf-line" x1="80" y1="65" x2="110" y2="95" /><line class="wf-line" x1="110" y1="65" x2="80" y2="95" />
+            <text class="wf-text" x="5" y="120">alex_raduntcev.portfolio</text>
+            <text class="wf-text" x="5" y="128">....</text>
+        </svg>
+    </div>
+    <button id="enter-btn">Открыть сайт</button>
+</div>
+
+    <!-- НАВИГАЦИЯ -->
+    <nav class="fixed top-[2px] left-[26px] w-[calc(100%-4px)] z-50 mix-blend-difference text-white flex justify-between items-center px-6 md:px-10 py-6 pointer-events-none">
+        <div class="font-bold text-sm tracking-[0.2em] uppercase pointer-events-auto cursor-pointer flex items-center gap-6" onclick="goHome()">
+            <span>Alex Raduntsev</span>
+            <!-- Переключатель языков -->
+            <button onclick="event.stopPropagation(); toggleLanguage()" class="flex items-center gap-2 hover:opacity-70 transition-opacity">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="lang-en">RU</span>
+                <span class="lang-ru">EN</span>
+            </button>
+        </div>
+        <div class="hidden md:flex gap-8 text-xs tracking-[0.1em] font-bold uppercase pointer-events-auto">
+            <a href="#" onclick="goHome(); setTimeout(()=>document.getElementById('projects-grid').scrollIntoView(), 100);" class="hover:opacity-70 transition-opacity">
+                <span class="lang-en">Projects</span><span class="lang-ru">Проекты</span>
+            </a>
+            <a href="#" onclick="goHome(); setTimeout(()=>document.getElementById('about-section').scrollIntoView(), 100);" class="hover:opacity-70 transition-opacity">
+                <span class="lang-en">About</span><span class="lang-ru">Обо мне</span>
+            </a>
+            <a href="#challenge-section" class="hover:opacity-70 transition-opacity">
+                <span class="lang-en">Contact</span><span class="lang-ru">Контакты</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ВИД 1: ГЛАВНАЯ СТРАНИЦА -->
+    <main id="view-home" class="view-active flex-col gap-[2px] w-full">
+        
+<!-- HERO СЕКЦИЯ -->
+        <section id="physics-container" class="relative w-full h-[85vh] md:h-screen bg-brand-hero overflow-hidden">
+    <img 
+        src="https://i.ibb.co/0R4d6LxX/head2.gif" 
+        alt="background animation" 
+        class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none opacity-50"
+    >
+
+    <div class="relative z-10 w-full h-full">
+        <div class="physics-item shape-pill font-mono" data-type="pill">JAVA SCRIPT</div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">
+            <span class="lang-en">POLYGRAPHY</span><span class="lang-ru">ПОЛИГРАФИЯ</span>
+        </div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">HTML</div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">
+            <span class="lang-en">PRODUCT &bull;</span><span class="lang-ru">ПРОДУКТ &bull;</span>
+        </div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">
+            <span class="lang-en">WEB-DESIGNER</span><span class="lang-ru">ВЕБ-ДИЗАЙНЕР</span>
+        </div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">CSS</div>
+        <div class="physics-item shape-circle font-sans flex items-center justify-center pb-2" data-type="circle">&darr;</div>
+        <div class="physics-item shape-circle font-sans flex items-center justify-center pt-2" data-type="circle">&ast;</div>
+
+        <div class="physics-item shape-pill font-mono" data-type="pill">UI/UX</div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">FIGMA</div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">
+            <span class="lang-en">CREATIVE</span><span class="lang-ru">КРЕАТИВ</span>
+        </div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">FRONT-END</div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">
+            <span class="lang-en">RESPONSIVE</span><span class="lang-ru">АДАПТИВНОСТЬ</span>
+        </div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">
+            <span class="lang-en">BRANDING</span><span class="lang-ru">БРЕНДИНГ</span>
+        </div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">
+            <span class="lang-en">TYPOGRAPHY</span><span class="lang-ru">ТИПОГРАФИКА</span>
+        </div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">TAILWIND</div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">REACT</div>
+        <div class="physics-item shape-pill font-mono" data-type="pill">
+            <span class="lang-en">ANIMATION</span><span class="lang-ru">АНИМАЦИЯ</span>
+        </div>
+        <div class="physics-item shape-circle font-sans flex items-center justify-center" data-type="circle">&#x2197;</div>
+        <div class="physics-item shape-circle font-sans flex items-center justify-center pb-1" data-type="circle">+</div>
+        <div class="physics-item shape-circle font-sans flex items-center justify-center pt-1" data-type="circle">&starf;</div>
+    </div>
+
+<div class="absolute inset-x-0 bottom-0 flex items-end justify-center pointer-events-none z-20 pb-[50px]">
+    <div class="font-bold text-2xl md:text-5xl leading-tight tracking-wide flex items-center gap-3 text-brand-dark px-6 text-center flex-wrap justify-center">
+        <span class="lang-en">YOUR</span><span class="lang-ru">твой</span>
+        <span class="flip-container text-gray-500">
+            <span id="animated-hero-text" class="flip-inner">BEST DECISION</span>
+        </span>
+    </div>
+</div>
+</section>
+
+        <!-- СЕТКА ПРОЕКТОВ -->
+        <div id="projects-grid" class="flex flex-col gap-[2px]">
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-[2px] h-auto md:h-[70vh]">
+                <div class="relative md:h-[50vh] md:h-full img-container cursor-pointer group reveal-left" onclick="openCase(1)">
+                    <img src="https://i.ibb.co/fsPxQy0/project-01.jpg" alt="Proj 1" class="absolute inset-0 w-full h-full object-contain img-zoom" />
+                    
+                    <div class="photo-text normal-case">
+                        <div class="photo-text-title"><span class="lang-en">PROJECT №1</span><span class="lang-ru">ЗИН. Исследование классического канона верстки</span></div>
+                        <div class="photo-text-sub"><span class="lang-en">WEB DESIGN & TAPLINK</span><span class="lang-ru">Полиграфия. Дизайн изданий</span></div>
+                    </div>
+                </div>
+                <div class="relative md:h-[50vh] md:h-full img-container cursor-pointer group reveal-right" onclick="openCase(2)">
+                    <img src="https://i.ibb.co/N6bkrCxr/project-02.jpg" alt="Proj 2" class="absolute inset-0 w-full h-full object-contain img-zoom" />
+                    
+                    <div class="photo-text normal-case">
+                        <div class="photo-text-title"><span class="lang-en">PROJECT №2</span><span class="lang-ru">Брендинг школы английского языка</span></div>
+                        <div class="photo-text-sub"><span class="lang-en">UX/UI & ARCHITECTURE</span><span class="lang-ru">Айдентика. Веб-дизайн</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-[2px] h-auto md:h-[70vh]">
+                <div class="relative h-[50vh] md:h-full img-container cursor-pointer group reveal-left" onclick="openCase(3)">
+                    <img src="https://i.ibb.co/Y4KVDjbR/project-03.jpg" alt="Proj 3" class="absolute inset-0 w-full h-full object-cover img-zoom" />
+                    
+                    <div class="photo-text">
+                        <div class="photo-text-title"><span class="lang-en">PROJECT №3</span><span class="lang-ru">ПЭТ-проект. Аренда книг</span></div>
+                        <div class="photo-text-sub"><span class="lang-en">CRM REDESIGN</span><span class="lang-ru">Айдентика. Вёрстка</span></div>
+                    </div>
+                </div>
+                <div class="relative h-[50vh] md:h-full img-container cursor-pointer group reveal-right" onclick="openCase(4)">
+                    <img src="https://i.ibb.co/TBXPhYWz/project-04.jpg" alt="Proj 4" class="absolute inset-0 w-full h-full object-cover img-zoom" />
+                    
+                    <div class="photo-text">
+                        <div class="photo-text-title"><span class="lang-en">PROJECT №4</span><span class="lang-ru">Редизайн. CRM-система</span></div>
+                        <div class="photo-text-sub"><span class="lang-en">BRANDING & IDENTITY</span><span class="lang-ru">Веб-дизайн. Вёрстка</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-5 gap-[2px] h-[15vh] md:h-[25vh] reveal-up">
+                <div class="img-container"><img src="https://i.ibb.co/MDVJ7Lct/project-03.jpg" class="w-full h-full object-cover img-zoom"></div>
+                <div class="img-container"><img src="https://i.ibb.co/cVSzcZn/project-01.jpg" class="w-full h-full object-cover img-zoom"></div>
+                <div class="img-container"><img src="https://i.ibb.co/jv49PQWD/project-04.jpg" class="w-full h-full object-cover img-zoom"></div>
+                <div class="img-container"><img src="https://i.ibb.co/tw3YbBBw/project-06.jpg" class="w-full h-full object-cover img-zoom"></div>
+                <div class="img-container"><img src="https://i.ibb.co/Zpt81rVZ/project-07.jpg" class="w-full h-full object-cover img-zoom"></div>
+            </section>
+
+            <section class="relative h-[60vh] md:h-[80vh] w-full img-container cursor-pointer group reveal-left" onclick="openCase(5)">
+                <img src="https://i.ibb.co/yBMcJMk9/project-05-v1.jpg" alt="Proj 5" class="absolute inset-0 w-full h-full object-cover img-zoom" />
+                
+                <div class="photo-text">
+                    <div class="photo-text-title"><span class="lang-en">PROJECT №5</span><span class="lang-ru">Скрипт для генерации полей изданий<br> вне стандартных размеров</span></div>
+                    <div class="photo-text-sub"><span class="lang-en">3D MODELING & MOTION</span><span class="lang-ru">Программирование. Дизайн изданий</span></div>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-[2px] h-auto md:h-[70vh]">
+                <div class="relative h-[50vh] md:h-full img-container cursor-pointer group reveal-left" onclick="openCase(6)">
+                    <img src="https://i.ibb.co/tPCTJ59t/project-06.jpg" alt="Proj 6" class="absolute inset-0 w-full h-full object-cover img-zoom" />
+                    
+                    <div class="photo-text">
+                        <div class="photo-text-title"><span class="lang-en">PROJECT №6</span><span class="lang-ru">ИИ-генеративные проекты</span></div>
+                        <div class="photo-text-sub"><span class="lang-en">EDITORIAL DESIGN</span><span class="lang-ru">ИИ-генерация. Брендинг. Полиграфия</span></div>
+                    </div>
+                </div>
+                <div class="relative h-[50vh] md:h-full img-container cursor-pointer group reveal-right" onclick="openCase(7)">
+                    <img src="https://i.ibb.co/HTzqJLKd/project-07.jpg" alt="Proj 7" class="absolute inset-0 w-full h-full object-cover img-zoom" />
+                    
+                    <div class="photo-text">
+                        <div class="photo-text-title"><span class="lang-en">PROJECT №7</span><span class="lang-ru">Концептуальные веб-проекты</span></div>
+                        <div class="photo-text-sub"><span class="lang-en">AI PRODUCTION</span><span class="lang-ru">Веб-дизайн. Программирование</span></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 1. НОВЫЙ БЛОК: ОБО МНЕ -->
+        <!-- 1. ABOUT SECTION (REDESIGNED) -->
+<section id="about-section" class="w-full bg-white px-6 md:px-16 py-16 md:py-32 flex justify-center">
+    <div class="w-full max-w-6xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-32">
+            <div class="flex flex-col justify-start reveal">
+                <h2 class="font-geist text-3xl md:text-5xl font-bold mb-16" style="color: #111111; letter-spacing: 0.05em;">
+                    <span class="lang-en">Hi, I'm<br>Alex Raduntsev.</span>
+                    <span class="lang-ru">Привет, я<br>Алексей Радунцев.</span>
+                </h2>
+            </div>
+            
+            <div class="flex flex-col justify-start gap-8 reveal delay-200">
+                <p class="text-base md:text-xl leading-relaxed" style="color: #333333; font-size: 16px; line-height: 24px;">
+                    <span class="lang-en">Web designer and developer from Russia. I create functional websites and visual systems...</span>
+                    <span class="lang-ru">Дизайнер-инженер и разработчик из России. Создаю функциональные сайты и визуальные системы...</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+       
+
+        <!-- 3. SERVICES SECTION (REDESIGNED) -->
+        <section class="w-full bg-white px-6 md:px-16 py-16 md:py-32 flex justify-center magic-bento-section -mt-[2px]" id="magic-section-services">
+            <div class="w-full max-w-6xl">
+                <h2 class="font-geist text-3xl md:text-5xl font-bold mb-12 reveal-up" style="color: #111111; letter-spacing: 0.05em;">
+                    <span class="lang-en">How I can<br>help you</span>
+                    <span class="lang-ru">Как я могу<br>вам помочь</span>
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    
+                    <!-- Service Card 1 -->
+                    <div class="service-card-item magic-card bg-ref-card-bg rounded-16 p-8 md:p-10 flex flex-col gap-6 group reveal-left delay-200" style="background-color: #FFFFFF;">
+                        <h3 class="text-lg md:text-2xl font-bold" style="color: #111111; letter-spacing: -0.3px;">
+                            <span class="lang-ru">Веб-дизайн и разработка</span>
+                            <span class="lang-en">Web design and development</span>
+                        </h3>
+                        <p class="text-sm md:text-base" style="color: #666666; line-height: 1.6;">
+                            <span class="lang-ru">Создание функциональных и визуально привлекательных веб-сайтов от концепции до запуска. Полная разработка на HTML, CSS, JavaScript с адаптивным дизайном.</span>
+                            <span class="lang-en">Creating functional and visually appealing websites from concept to launch. Full development with HTML, CSS, JavaScript and responsive design.</span>
+                        </p>
+                    </div>
+
+                    <!-- Service Card 2 -->
+                    <div class="service-card-item magic-card bg-ref-card-bg rounded-16 p-8 md:p-10 flex flex-col gap-6 group reveal-right delay-300" style="background-color: #FFFFFF;">
+                        <h3 class="text-lg md:text-2xl font-bold" style="color: #111111; letter-spacing: -0.3px;">
+                            <span class="lang-ru">Графический дизайн</span>
+                            <span class="lang-en">Graphic design</span>
+                        </h3>
+                        <p class="text-sm md:text-base" style="color: #666666; line-height: 1.6;">
+                            <span class="lang-ru">Разработка логотипов, фирменных стилей, макетов и брендинга. Дизайн полиграфической продукции и визуальных систем для компаний.</span>
+                            <span class="lang-en">Creating logos, brand identities, layouts and branding. Print design and visual systems for companies and organizations.</span>
+                        </p>
+                    </div>
+
+                    <!-- Service Card 3 -->
+                    <div class="service-card-item magic-card bg-ref-card-bg rounded-16 p-8 md:p-10 flex flex-col gap-6 group reveal-left delay-400" style="background-color: #FFFFFF;">
+                        <h3 class="text-lg md:text-2xl font-bold" style="color: #111111; letter-spacing: -0.3px;">
+                            <span class="lang-ru">UX/UI проектирование</span>
+                            <span class="lang-en">UX/UI design</span>
+                        </h3>
+                        <p class="text-sm md:text-base" style="color: #666666; line-height: 1.6;">
+                            <span class="lang-ru">Проектирование интерфейсов и пользовательского опыта. Исследование аудитории, прототипирование, тестирование и оптимизация.</span>
+                            <span class="lang-en">Interface and user experience design. User research, prototyping, testing and optimization for digital products.</span>
+                        </p>
+                    </div>
+
+                    <!-- Service Card 4 -->
+                    <div class="service-card-item magic-card bg-ref-card-bg rounded-16 p-8 md:p-10 flex flex-col gap-6 group reveal-right delay-500" style="background-color: #FFFFFF;">
+                        <h3 class="text-lg md:text-2xl font-bold" style="color: #111111; letter-spacing: -0.3px;">
+                            <span class="lang-ru">3D и визуальный контент</span>
+                            <span class="lang-en">3D and visual content</span>
+                        </h3>
+                        <p class="text-sm md:text-base" style="color: #666666; line-height: 1.6;">
+                            <span class="lang-ru">3D моделирование, визуализация и создание видео контента. Производство материалов для маркетинга и коммуникаций.</span>
+                            <span class="lang-en">3D modeling, visualization and video content creation. Production of materials for marketing and communications.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<section class="w-full bg-white px-6 md:px-16 py-16 md:py-32 flex justify-center magic-bento-section -mt-[2px]" id="magic-section-education">
+    <div class="w-full max-w-6xl flex flex-col gap-4 md:gap-6 reveal-up">
+        
+        <h2 class="font-geist text-3xl md:text-5xl font-bold mb-6 md:mb-8" style="color: #111111; letter-spacing: 0.05em;">
+            <span class="lang-en">Education</span>
+            <span class="lang-ru">Образование</span>
+        </h2>
+        
+        <div class="bg-ref-card-bg rounded-16 p-8 md:p-12 magic-card" style="background-color: #FFFFFF;">
+    <div class="flex flex-col md:flex-row gap-8 md:gap-12 justify-between items-start reveal-left">
+        
+        <div class="w-full md:w-2/3">
+            <p class="text-xs md:text-sm font-bold mb-6" style="color: #666666; letter-spacing: 0.01em; text-transform: uppercase;">
+                <span class="lang-ru">Высшее образование</span>
+                <span class="lang-en">Higher Education</span>
+            </p>
+            <h3 class="text-2xl md:text-3xl font-bold mb-6" style="color: #111111;">
+                <span class="lang-ru">Дальневосточный<br>федеральный университет</span>
+                <span class="lang-en">Far Eastern<br>Federal University</span>
+            </h3>
+            <p class="text-base md:text-lg font-regular" style="color: #111111; margin-bottom: 12px;">
+                <span class="lang-ru">Автоматизация процессов<br>и производств</span>
+                <span class="lang-en">Automation of processes<br>and production</span>
+            </p>
+            <p class="text-sm md:text-base" style="color: #666666; line-height: 1.6;">
+                <span class="lang-ru">Проектирование комплексных систем, работа с технической документацией, знание устройства механизмов, электроники, стандартов автоматизации, материаловедения, программирования.</span>
+                <span class="lang-en">Designing complex systems, working with technical documentation, knowledge of mechanisms and automation standards.</span>
+            </p>
+        </div>
+
+<div class="w-full md:w-1/3 flex-shrink-0">
+    <div class="w-full h-fit rounded-8 overflow-hidden relative group border border-[#DDD] magic-card" style="background-color: #F5F5F5;">
+        
+        <img src="https://i.ibb.co/nNv1gKdt/808812577.jpg" 
+             alt="Diploma" 
+             class="w-full h-auto block opacity-40 group-hover:opacity-100 transition-opacity duration-500" 
+             style="filter: grayscale(100%);">
+        
+    </div>
+</div>
+
+    </div>
+</div>
+
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+    
+    <div class="experience-card bg-[#1A1A1A] rounded-16 p-8 md:p-10 relative group border border-white/5 reveal-left" style="background-color: #1A1A1A;">
+        
+        <h3 class="text-xl md:text-2xl font-bold mb-6" style="color: #ffffff; letter-spacing: -0.3px;">
+            <span class="lang-ru">Обучение по профессии<br>дизайнер</span>
+            <span class="lang-en">Professional<br>Training</span>
+        </h3>
+        
+        <div class="relative h-[220px] overflow-hidden border-t border-[#333333]">
+            
+            <div class="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-[#1A1A1A] to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-[#1A1A1A] to-transparent z-10 pointer-events-none"></div>
+
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 z-30">
+                <button onclick="scrollRoulette(this, -1)" class="p-2 bg-white/10 backdrop-blur-md text-white/40 hover:text-white hover:bg-white/20 rounded-full border border-white/10 shadow-lg">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                </button>
+                <button onclick="scrollRoulette(this, 1)" class="p-2 bg-white/10 backdrop-blur-md text-white/40 hover:text-white hover:bg-white/20 rounded-full border border-white/10 shadow-lg">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+            </div>
+
+            <div onmouseenter="stopAutoScroll()" onmouseleave="startAutoScroll()" class="roulette-container h-full overflow-y-auto snap-y snap-mandatory hide-scrollbar pr-10">
+                
+                <div class="h-full flex flex-col justify-center snap-center pt-4">
+                    <h4 class="text-sm font-bold mb-4 uppercase tracking-widest" style="color: #E5E5E5;">
+                        <span class="lang-ru">UX/UI и Веб-дизайн</span>
+                        <span class="lang-en">UX/UI and Web Design</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm md:text-base leading-tight" style="color: #999999;">
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Skillbox:</strong> Профессия UX/UI-дизайнер</span><span class="lang-en"><strong style="color: #ffffff;">Skillbox:</strong> UX/UI Designer Profession</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Skillbox:</strong> Дизайнер на платформе Tilda</span><span class="lang-en"><strong style="color: #ffffff;">Skillbox:</strong> Tilda Website Designer</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Udemy:</strong> Complete Web Design</span><span class="lang-en"><strong style="color: #ffffff;">Udemy:</strong> Complete Web Design</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Itlogia:</strong> UX/UI Start</span><span class="lang-en"><strong style="color: #ffffff;">Itlogia:</strong> UX/UI Start</span></li>
+                    </ul>
+                </div>
+
+                <div class="h-full flex flex-col justify-center snap-center pt-4">
+                    <h4 class="text-sm font-bold mb-4 uppercase tracking-widest" style="color: #E5E5E5;">
+                        <span class="lang-ru">Фронтенд и CMS</span>
+                        <span class="lang-en">Frontend Development</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm md:text-base leading-tight" style="color: #999999;">
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Itlogia:</strong> Frontend Start</span><span class="lang-en"><strong style="color: #ffffff;">Itlogia:</strong> Frontend Start</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">WordPress:</strong> Полное руководство</span><span class="lang-en"><strong style="color: #ffffff;">WordPress:</strong> Complete Guide</span></li>
+                    </ul>
+                </div>
+
+                <div class="h-full flex flex-col justify-center snap-center pt-4">
+                    <h4 class="text-sm font-bold mb-4 uppercase tracking-widest" style="color: #E5E5E5;">
+                        <span class="lang-ru">Графический дизайн</span>
+                        <span class="lang-en">Graphic Design</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm md:text-base leading-tight" style="color: #999999;">
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Uprock:</strong> Логотипы и фирменный стиль</span><span class="lang-en"><strong style="color: #ffffff;">Uprock:</strong> Logos and Identity</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="experience-card bg-[#1A1A1A] rounded-16 p-8 md:p-10 relative group border border-white/5 reveal-right" style="background-color: #1A1A1A;">
+        
+        <h3 class="text-xl md:text-2xl font-bold mb-6" style="color: #ffffff; letter-spacing: -0.3px;">
+            <span class="lang-ru">Прочитал<br>и использую</span>
+            <span class="lang-en">Key<br>Resources</span>
+        </h3>
+        
+        <div class="relative h-[220px] overflow-hidden border-t border-[#333333]">
+            
+            <div class="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-[#1A1A1A] to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-[#1A1A1A] to-transparent z-10 pointer-events-none"></div>
+
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 z-30">
+                <button onclick="scrollRoulette(this, -1)" class="p-2 bg-white/10 backdrop-blur-md text-white/40 hover:text-white hover:bg-white/20 rounded-full border border-white/10 shadow-lg">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                </button>
+                <button onclick="scrollRoulette(this, 1)" class="p-2 bg-white/10 backdrop-blur-md text-white/40 hover:text-white hover:bg-white/20 rounded-full border border-white/10 shadow-lg">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+            </div>
+
+            <div onmouseenter="stopAutoScroll()" onmouseleave="startAutoScroll()" class="roulette-container h-full overflow-y-auto snap-y snap-mandatory hide-scrollbar pr-10">
+                
+                <div class="h-full flex flex-col justify-center snap-center pt-4">
+                    <h4 class="text-sm font-bold mb-4 uppercase tracking-widest" style="color: #E5E5E5;">
+                        <span class="lang-ru">Системный дизайн</span>
+                        <span class="lang-en">Systems Design</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm md:text-base leading-tight" style="color: #999999;">
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Мюллер-Брокманн</strong> «Модульные системы»</span><span class="lang-en"><strong style="color: #ffffff;">Müller-Brockmann</strong> — Grid Systems</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Фрост</strong> «Atomic Design»</span><span class="lang-en"><strong style="color: #ffffff;">Frost</strong> — Atomic Design</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Gertner</strong> «Designing Programmes»</span><span class="lang-en"><strong style="color: #ffffff;">Gerstner</strong> — Designing Programmes</span></li>
+                    </ul>
+                </div>
+
+                <div class="h-full flex flex-col justify-center snap-center pt-4">
+                    <h4 class="text-sm font-bold mb-4 uppercase tracking-widest" style="color: #E5E5E5;">
+                        <span class="lang-ru">Типографика</span>
+                        <span class="lang-en">Typography</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm md:text-base leading-tight" style="color: #999999;">
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Чихольд</strong> «Облик книги»</span><span class="lang-en"><strong style="color: #ffffff;">Tschichold</strong> — The Form of the Book</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Брингхерст</strong> «Основы стиля»</span><span class="lang-en"><strong style="color: #ffffff;">Bringhurst</strong> — Elements of Style</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Спикерманн</strong> «О шрифте»</span><span class="lang-en"><strong style="color: #ffffff;">Spiekermann</strong> — Stop Stealing Sheep</span></li>
+                    </ul>
+                </div>
+
+                <div class="h-full flex flex-col justify-center snap-center pt-4">
+                    <h4 class="text-sm font-bold mb-4 uppercase tracking-widest" style="color: #E5E5E5;">
+                        <span class="lang-ru">UX и интерфейсы</span>
+                        <span class="lang-en">UX and Interfaces</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm md:text-base leading-tight" style="color: #999999;">
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Норман</strong> «Дизайн привычных вещей»</span><span class="lang-en"><strong style="color: #ffffff;">Norman</strong> — Design of Everyday Things</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Круг</strong> «Не заставляйте меня думать»</span><span class="lang-en"><strong style="color: #ffffff;">Krug</strong> — Don't Make Me Think</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Купер</strong> «Об интерфейсе»</span><span class="lang-en"><strong style="color: #ffffff;">Cooper</strong> — About Face</span></li>
+                    </ul>
+                </div>
+
+                <div class="h-full flex flex-col justify-center snap-center pt-4">
+                    <h4 class="text-sm font-bold mb-4 uppercase tracking-widest" style="color: #E5E5E5;">
+                        <span class="lang-ru">Веб-технологии</span>
+                        <span class="lang-en">Web Technologies</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm md:text-base leading-tight" style="color: #999999;">
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Маркотт</strong> «Отзывчивый дизайн»</span><span class="lang-en"><strong style="color: #ffffff;">Marcotte</strong> — Responsive Design</span></li>
+                        <li><span class="lang-ru"><strong style="color: #ffffff;">Макфедрис</strong> «Web Design Playground»</span><span class="lang-en"><strong style="color: #ffffff;">McFedries</strong> — Web Design Playground</span></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+        
+    </div>
+
+    
+</section>
+
+ <!-- 2. EXPERIENCE SECTION (REDESIGNED) -->
+        <section class="w-full bg-white px-6 md:px-16 py-16 md:py-32 flex justify-center magic-bento-section -mt-[2px]" id="magic-section-experience">
+            <div class="w-full max-w-6xl reveal-up">
+                <h2 class="font-geist text-3xl md:text-5xl font-bold mb-16" style="color: #111111; letter-spacing: 0.05em;">
+                    <span class="lang-en">Experience</span>
+                    <span class="lang-ru">Опыт работы</span>
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    
+                    <!-- Experience Card 1 -->
+                    <div class="experience-card rounded-16 p-8 md:p-10 cursor-default transition-all duration-300 group relative border border-white/5 reveal-left" style="background-color: #2e2e2e;">
+    
+    <div class="absolute -right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 z-30">
+        <button onclick="scrollRoulette(this, -1)" class="p-3 bg-white/10 backdrop-blur-md text-white/40 hover:text-white hover:bg-white/20 rounded-full transition-all border border-white/10 shadow-2xl">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+        </button>
+        <button onclick="scrollRoulette(this, 1)" class="p-3 bg-white/10 backdrop-blur-md text-white/40 hover:text-white hover:bg-white/20 rounded-full transition-all border border-white/10 shadow-2xl">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+    </div>
+
+    <div class="flex flex-col md:flex-row md:items-stretch gap-6 md:gap-12">
+        
+        <div class="w-full md:w-1/4 relative flex flex-col justify-center min-h-[120px]">
+            <span class="absolute top-0 left-0 text-[10px] text-xs md:text-sm font-bold uppercase tracking-[0.2em] opacity-30" style="color: #999999; letter-spacing: 0.1em; text-transform: uppercase;">
+                2023 — 2026
+            </span>
+            
+            <h3 class="text-xl md:text-2xl font-normal leading-tight mt-10 md:mt-0" style="color: #ffffff; letter-spacing: -0.5px;">
+                <span class="lang-en"><span class="font-bold">Freelance</span><br>Web-designer</span>
+                <span class="lang-ru"><span class="font-bold">Freelance</span><br>Дизайнер</span>
+            </h3>
+        </div>
+
+        <div class="w-full md:w-3/4 relative">
+            <div class="relative h-[160px] md:h-[200px] overflow-hidden">
+                
+                <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-[#2e2e2e] to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#2e2e2e] to-transparent z-10 pointer-events-none"></div>
+
+                <div id="freelance-roulette" 
+     onmouseenter="stopAutoScroll()" 
+     onmouseleave="startAutoScroll()" 
+     class="roulette-container h-full overflow-y-auto snap-y snap-mandatory hide-scrollbar pr-10">
+                    
+                    <div class="h-full flex flex-col justify-center snap-center">
+                        <div class="lang-ru">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">UX/UI Проектирование</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Реконструкция интерфейсов сложных систем и <span style="color: #ffffff;">проектирование CRM.</span></p>
+                        </div>
+                        <div class="lang-en">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">UX/UI Design</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Reconstructing complex system interfaces and CRM solutions with a focus on functional aesthetics.</p>
+                        </div>
+                    </div>
+
+                    <div class="h-full flex flex-col justify-center snap-center">
+                        <div class="lang-ru">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Вёрстка и девелопмент</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Сборка сайтов на <span style="color: #ffffff;">Tilda, Workflow и Wordpress</span> с кастомным кодом, деплой.</p>
+                        </div>
+                        <div class="lang-en">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Full-cycle Dev</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Building websites on Tilda and custom code. Integrating interactive scenarios and complex animations.</p>
+                        </div>
+                    </div>
+
+                    <div class="h-full flex flex-col justify-center snap-center">
+                        <div class="lang-ru">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Книжный дизайн</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Верстка многостраничных изданий, брошюр, полиграфии для бизнесса.</p>
+                        </div>
+                        <div class="lang-en">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Book Design</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Layout design based on Jan Tschichold's classical canons and the Swiss grid system.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+                    <!-- Experience Card 2 -->
+                    <div class="experience-card magic-card bg-ref-card-bg rounded-16 p-8 md:p-10 cursor-pointer transition-all duration-300 hover:bg-opacity-80 group reveal-right" style="background-color: #FFFFFF;">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="text-xs md:text-sm font-bold" style="color: #999999; letter-spacing: 0.1em; text-transform: uppercase;">2024</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-normal mb-6" style="color: #111111; letter-spacing: -0.3px;">
+                            <span class="lang-ru"><span class="font-bold">ECT center</span><br>Проектный менеджер</span>
+                            <span class="lang-en"><span class="font-bold">ECT center</span><br>Project Manager</span>
+                        </h3>
+                        <div class="exp-description space-y-4 text-sm md:text-base" style="color: #474747; max-height: 0; overflow: hidden; transition: max-height 0.3s ease;">
+                            <div class="lang-ru space-y-3">
+                                <p><strong style="color: #111111;">Управление процессами:</strong> Контроль сроков и качества реализации технических задач.</p>
+                                <p><strong style="color: #111111;">Методологии:</strong> Работа по Agile и Kanban, координация взаимодействия между заказчиком и исполнителями.</p>
+                            </div>
+                            <div class="lang-en space-y-3">
+                                <p><strong style="color: #111111;">Process management:</strong> Monitoring deadlines and the quality of technical task implementation.</p>
+                                <p><strong style="color: #111111;">Methodologies:</strong> Working with Agile and Kanban, coordinating interaction between the client and executors.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Experience Card 3 -->
+                    <div class="experience-card magic-card bg-ref-card-bg rounded-16 p-8 md:p-10 cursor-pointer transition-all duration-300 hover:bg-opacity-80 group reveal-left" style="background-color: #FFFFFF;">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="text-xs md:text-sm font-bold" style="color: #999999; letter-spacing: 0.1em; text-transform: uppercase;">2024</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-normal mb-6" style="color: #111111; letter-spacing: -0.3px;">
+                            <span class="lang-ru"><span class="font-bold">Aquatoria</span><br>Стажер в PR-отделе</span>
+                            <span class="lang-en"><span class="font-bold">Aquatoria</span><br>PR Intern</span>
+                        </h3>
+                        <div class="exp-description space-y-4 text-sm md:text-base" style="color: #474747; max-height: 0; overflow: hidden; transition: max-height 0.3s ease;">
+                            <div class="lang-ru space-y-3">
+                                <p><strong style="color: #111111;">Верстка материалов:</strong> Подготовка презентаций и информационных брошюр.</p>
+                                <p><strong style="color: #111111;">Поддержка коммуникаций:</strong> Участие в разработке визуальной составляющей PR-кампаний и адаптация графики под различные носители.</p>
+                            </div>
+                            <div class="lang-en space-y-3">
+                                <p><strong style="color: #111111;">Layout design:</strong> Preparing presentations and information brochures.</p>
+                                <p><strong style="color: #111111;">Communication support:</strong> Participating in the visual development of PR campaigns and adapting graphics for various media.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Experience Card 4 -->
+                    <div class="experience-card magic-card bg-ref-card-bg rounded-16 p-8 md:p-10 cursor-pointer transition-all duration-300 hover:bg-opacity-80 group reveal-right" style="background-color: #FFFFFF;">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="text-xs md:text-sm font-bold" style="color: #999999; letter-spacing: 0.1em; text-transform: uppercase;">2025</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-normal mb-6" style="color: #111111; letter-spacing: -0.3px;">
+                            <span class="lang-ru"><span class="font-bold">Cybermisha</span><br>Дизайнер контента</span>
+                            <span class="lang-en"><span class="font-bold">Cybermisha</span><br>Content Designer</span>
+                        </h3>
+                        <div class="exp-description space-y-4 text-sm md:text-base" style="color: #474747; max-height: 0; overflow: hidden; transition: max-height 0.3s ease;">
+                            <div class="lang-ru space-y-3">
+                                <p><strong style="color: #111111;">Визуальный контент:</strong> Проектирование графических материалов и инфографики для цифровых платформ.</p>
+                                <p><strong style="color: #111111;">Работа с ИИ:</strong> Применение нейросетей для генерации и обработки визуальных ассетов, ускоряющих производство контента.</p>
+                            </div>
+                            <div class="lang-en space-y-3">
+                                <p><strong style="color: #111111;">Visual content:</strong> Designing graphic materials and infographics for digital platforms.</p>
+                                <p><strong style="color: #111111;">AI implementation:</strong> Using neural networks to generate and process visual assets, accelerating content production.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Experience Card 5 -->
+                    <div class="experience-card md:col-span-2 bg-[#2e2e2e] rounded-16 p-8 md:p-10 cursor-default transition-all duration-300 group relative border border-white/5 reveal-up">
+    
+    <div class="absolute -right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 z-30">
+        <button onclick="scrollRoulette(this, -1)" class="p-3 bg-white/10 backdrop-blur-md text-white/40 hover:text-white hover:bg-white/20 rounded-full transition-all border border-white/10 shadow-2xl">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+        </button>
+        <button onclick="scrollRoulette(this, 1)" class="p-3 bg-white/10 backdrop-blur-md text-white/40 hover:text-white hover:bg-white/20 rounded-full transition-all border border-white/10 shadow-2xl">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+    </div>
+
+    <div class="flex flex-col md:flex-row md:items-stretch gap-6 md:gap-12">
+        
+        <div class="w-full md:w-1/4 relative flex flex-col justify-center min-h-[120px]">
+            <span class="absolute top-0 left-0 text-[10px] text-xs md:text-sm font-bold uppercase tracking-[0.2em] opacity-30" style="color: #999999; letter-spacing: 0.1em; text-transform: uppercase;">
+                <span class="lang-en">2025 — Present</span>
+                <span class="lang-ru">2025 — н.в.</span>
+            </span>
+            
+            <h3 class="text-xl md:text-2xl font-normal leading-tight mt-10 md:mt-0" style="color: #ffffff; letter-spacing: -0.5px;">
+                <span class="lang-en"><span class="font-bold">EngAtmo</span><br>Junior Designer</span>
+                <span class="lang-ru"><span class="font-bold">EngAtmo</span><br>Джуниор дизайнер</span>
+            </h3>
+        </div>
+
+        <div class="w-full md:w-3/4 relative">
+            <div class="relative h-[160px] md:h-[200px] overflow-hidden">
+                
+                <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-[#2e2e2e] to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-[#2e2e2e] to-transparent z-10 pointer-events-none"></div>
+
+                <div id="engatmo-roulette" 
+                     onmouseenter="stopAutoScroll()" 
+                     onmouseleave="startAutoScroll()" 
+                     class="roulette-container h-full overflow-y-auto snap-y snap-mandatory hide-scrollbar pr-10">
+                    
+                    <div class="h-full flex flex-col justify-center snap-center">
+                        <div class="lang-ru">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Проектирование систем обучения</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Разработка архитектуры и визуальных гайдлайнов для образовательных <span style="color: #ffffff;">платформ (Miro).</span></p>
+                        </div>
+                        <div class="lang-en">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Learning systems design</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Architecture and visual guidelines for educational <span style="color: #ffffff;">platforms (Miro).</span></p>
+                        </div>
+                    </div>
+
+                    <div class="h-full flex flex-col justify-center snap-center">
+                        <div class="lang-ru">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Веб-разработка</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Дизайн и полная сборка сайта-визитки <span style="color: #ffffff;">на TapLink.</span></p>
+                        </div>
+                        <div class="lang-en">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Web development</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Design and full build of a portfolio site <span style="color: #ffffff;">on TapLink.</span></p>
+                        </div>
+                    </div>
+
+                    <div class="h-full flex flex-col justify-center snap-center">
+                        <div class="lang-ru">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Брендинг и коммуникации</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Редизайн айдентики, подготовка макетов наружной рекламы и оформление <span style="color: #ffffff;">контента для Telegram.</span></p>
+                        </div>
+                        <div class="lang-en">
+                            <h4 class="font-bold text-base tracking-widest mb-2" style="color: #ffffff;">Branding and communications</h4>
+                            <p class="text-base md:text-lg leading-none lowercase" style="color: #999999; line-height: 1.1;">Identity redesign, outdoor advertising layout, and <span style="color: #ffffff;">Telegram content formatting.</span></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    </div>
+</div>
+                </div>
+            </div>
+        </section>
+        
+        <style>
+            .experience-card:hover .exp-description {
+                max-height: 500px !important;
+            }
+        </style>
+
+        <!-- 6. INSTAGRAM SECTION (MODERN ENHANCED GALLERY) -->
+        <section class="w-full bg-white px-6 md:px-16 py-16 md:py-32 flex justify-center -mt-[2px]">
+            <div class="w-full max-w-6xl">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-12">
+                    <a href="https://www.instagram.com/raduncalek/" target="_blank" class="text-xs md:text-sm font-regular" style="color: #666666; letter-spacing: 0.1em; transition: color 0.3s; cursor: pointer;" onmouseover="this.style.color='#111111'" onmouseout="this.style.color='#666666'">
+                        <span class="lang-en">@raduncalek ↗</span>
+                        <span class="lang-ru">@raduncalek ↗</span>
+                    </a>
+                </div>
+
+                <!-- Enhanced Gallery Grid -->
+                <div class="gallery-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+                    <!-- Gallery Item 1 -->
+                    <div class="gallery-item-wrapper group cursor-pointer overflow-hidden rounded-8" style="background-color: #F0F0F0;">
+                        <div class="gallery-item relative w-full aspect-square overflow-hidden" onclick="openGalleryLightbox(0)">
+                            <img src="https://i.ibb.co/hRgcCPqF/1.png" alt="Work 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" style="filter: grayscale(1);">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <div class="text-white text-center">
+                                    <div class="text-sm md:text-base font-bold">
+                                        <span class="lang-en">View</span>
+                                        <span class="lang-ru">Просмотр</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Item 2 -->
+                    <div class="gallery-item-wrapper group cursor-pointer overflow-hidden rounded-8" style="background-color: #F0F0F0;">
+                        <div class="gallery-item relative w-full aspect-square overflow-hidden" onclick="openGalleryLightbox(1)">
+                            <img src="https://i.ibb.co/gbwhhSzr/2.png" alt="Work 2" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" style="filter: grayscale(1);">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <div class="text-white text-center">
+                                    <div class="text-sm md:text-base font-bold">
+                                        <span class="lang-en">View</span>
+                                        <span class="lang-ru">Просмотр</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Item 3 -->
+                    <div class="gallery-item-wrapper group cursor-pointer overflow-hidden rounded-8" style="background-color: #F0F0F0;">
+                        <div class="gallery-item relative w-full aspect-square overflow-hidden" onclick="openGalleryLightbox(2)">
+                            <img src="https://i.ibb.co/JRySpbsL/3.jpg" alt="Work 3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" style="filter: grayscale(1);">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <div class="text-white text-center">
+                                    <div class="text-sm md:text-base font-bold">
+                                        <span class="lang-en">View</span>
+                                        <span class="lang-ru">Просмотр</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Item 4 -->
+                    <div class="gallery-item-wrapper group cursor-pointer overflow-hidden rounded-8" style="background-color: #F0F0F0;">
+                        <div class="gallery-item relative w-full aspect-square overflow-hidden" onclick="openGalleryLightbox(3)">
+                            <img src="https://i.ibb.co/84KGr3Pv/4.png" alt="Work 4" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" style="filter: grayscale(1);">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <div class="text-white text-center">
+                                    <div class="text-sm md:text-base font-bold">
+                                        <span class="lang-en">View</span>
+                                        <span class="lang-ru">Просмотр</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gallery Item 5 -->
+                    <div class="gallery-item-wrapper group cursor-pointer overflow-hidden rounded-8" style="background-color: #F0F0F0;">
+                        <div class="gallery-item relative w-full aspect-square overflow-hidden" onclick="openGalleryLightbox(4)">
+                            <img src="https://i.ibb.co/VYXbLsr0/5.png" alt="Work 5" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" style="filter: grayscale(1);">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                <div class="text-white text-center">
+                                    <div class="text-sm md:text-base font-bold">
+                                        <span class="lang-en">View</span>
+                                        <span class="lang-ru">Просмотр</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Lightbox Modal -->
+        <div id="gallery-lightbox" class="fixed inset-0 bg-black/95 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center" onclick="closeGalleryLightbox(event)">
+            <div class="absolute top-6 right-6 z-10">
+                <button onclick="closeGalleryLightbox()" class="text-white hover:text-gray-300 transition-colors text-2xl w-10 h-10 flex items-center justify-center">
+                    ✕
+                </button>
+            </div>
+            
+            <div class="relative w-full h-full flex items-center justify-center px-4">
+                <button onclick="prevGalleryImage()" class="absolute left-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors text-3xl z-20">
+                    ‹
+                </button>
+                
+                <img id="lightbox-image" src="" alt="Gallery image" class="max-w-full max-h-[85vh] object-contain" style="filter: grayscale(1);">
+                
+                <button onclick="nextGalleryImage()" class="absolute right-6 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 transition-colors text-3xl z-20">
+                    ›
+                </button>
+            </div>
+            
+            <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-white text-xs md:text-sm font-bold" style="color: #999999;">
+                <span id="lightbox-counter">1 / 5</span>
+            </div>
+        </div>
+
+        <style>
+            .rounded-8 { border-radius: 8px; }
+            .gallery-grid { transition: gap 0.3s ease; }
+            #gallery-lightbox.active {
+                display: flex !important;
+                opacity: 1 !important;
+            }
+        </style>
+
+        <!-- ИГРА В БАСКЕТБОЛ (ПОЛНОЭКРАННАЯ) -->
+        <section id="challenge-section" class="relative w-full h-[80vh] md:h-screen bg-white mt-[2px] overflow-hidden border-[#111111] rounded-[32px] flex items-center justify-center">
+                
+                <!-- Контейнер для Canvas с игрой -->
+                <div id="basketball-wrapper" class="absolute inset-0 cursor-crosshair z-0"></div>
+
+                <!-- СЧЕТЧИК (справа сверху) -->
+                <div class="absolute top-16 left-1/2 ml-4 md:ml-10 z-10 pointer-events-none flex flex-col items-center">
+        
+    <div id="score-counter" class="text-5xl md:text-7xl font-bold leading-none transition-all duration-300 transform origin-center" style="color: #111111; font-size: clamp(40px, 8vw, 120px);">0</div>
+    
+    <span class="text-[10px] tracking-[0.2em] uppercase font-bold block mb-2" style="color: #666666;">
+        <span class="lang-en">Score</span><span class="lang-ru">Счет</span>
+    </span>
+
+</div>
+
+                <!-- UI Панель текста (слева сверху, абсолютно позиционирована, не блокирует canvas) -->
+                <div class="absolute top-0 left-0 w-full px-6 md:px-16 pt-16 md:pt-20 z-10 pointer-events-none">
+                    <div class="flex justify-center w-full">
+                        <div class="w-full max-w-6xl">
+                            <div class="max-w-2xl">
+                                <h2 id="challenge-title" class="font-geist text-3xl md:text-5xl font-bold mb-8 transition-colors duration-500 leading-tight" style="color: #111111; letter-spacing: 0.05em;">
+                                    <span class="lang-en">Prove you're human</span><span class="lang-ru">Докажите, что вы человек</span>
+                                </h2>
+                                <p id="challenge-desc" class="text-sm md:text-base mb-10 transition-opacity duration-500 max-w-md leading-relaxed" style="color: #666666; line-height: 1.6;">
+                                    <span class="lang-en">Throw the ball into the hoop once to get access to my contacts and secret free materials.</span>
+                                    <span class="lang-ru">Забросьте мяч в корзину один раз, чтобы получить доступ к моим контактам (можно просто взять и перетащить в корзину).</span>
+                                </p>
+
+                                <div id="locked-ui" class="pointer-events-auto transition-opacity duration-300 w-max">
+                                    <div class="inline-flex items-center gap-4 px-6 py-4 border-2 shadow-xl transition-colors rounded-8" style="background-color: #FFFFFF; border-color: #FF4500; color: #111111;" onmouseover="this.style.backgroundColor='#F5F5F5'" onmouseout="this.style.backgroundColor='#FFFFFF'">
+                                        <span class="text-2xl">🏀</span>
+                                        <span class="font-bold uppercase tracking-widest text-lg">
+                                            <span class="lang-en">Grab the ball with mouse &rarr;</span><span class="lang-ru">Хватайте мяч мышкой &rarr;</span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div id="unlocked-content" class="opacity-0 translate-y-4 hidden transition-all duration-700 pointer-events-none flex flex-col gap-12 mt-4">
+                                    <div>
+                                        <h3 class="text-[14px] tracking-widest uppercase font-bold mb-6" style="color: #666666;">
+                                            <span class="lang-en">Connect with me</span><span class="lang-ru">Мои контакты</span>
+                                        </h3>
+                                        <div class="flex flex-wrap gap-4 md:gap-6">
+                                            <!-- Telegram -->
+                                            <a href="https://t.me/aleraduga" target="_blank" class="flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-8 transition-all duration-300 hover:scale-110 hover:opacity-80" style="background-color: #F5F5F5; border: 1px solid #DDD;" title="Telegram">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21.5 2L3.5 13l5.5 2 10.5-9"/>
+                                                    <path d="M15.5 13l-5.5 9"/>
+                                                </svg>
+                                            </a>
+
+                                            <!-- Instagram -->
+                                            <a href="https://www.instagram.com/raduncalek/" target="_blank" class="flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-8 transition-all duration-300 hover:scale-110 hover:opacity-80" style="background-color: #F5F5F5; border: 1px solid #DDD;" title="Instagram">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                                    <circle cx="17.5" cy="6.5" r="1.5"></circle>
+                                                </svg>
+                                            </a>
+
+                                            <!-- Behance -->
+                                            <a href="https://www.behance.net/507cc99e" target="_blank" class="flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-8 transition-all duration-300 hover:scale-110 hover:opacity-80" style="background-color: #F5F5F5; border: 1px solid #DDD;" title="Behance">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z"></path>
+                                                    <path d="M7 9h4M7 13h4M14 9l1 4l1-4M14 9h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2"></path>
+                                                </svg>
+                                            </a>
+
+                                            <!-- dprofile -->
+                                            <a href="https://dprofile.ru/aleraduga" target="_blank" class="flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-8 transition-all duration-300 hover:scale-110 hover:opacity-80" style="background-color: #F5F5F5; border: 1px solid #DDD;" title="dprofile">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                                                    <circle cx="12" cy="8" r="2.5"></circle>
+                                                    <path d="M12 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"></path>
+                                                </svg>
+                                            </a>
+
+                                            <!-- Email -->
+                                            <a href="mailto:raduncalex@gmail.com" class="flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-8 transition-all duration-300 hover:scale-110 hover:opacity-80" style="background-color: #F5F5F5; border: 1px solid #DDD;" title="Email">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E5E5E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+    </main>
+
+    <!-- ВИД 2: СТРАНИЦА КЕЙСА -->
+    <main id="view-case" class="view-hidden flex-col w-full bg-[#111]" style="padding-bottom:56px;">
+
+        <!-- СЛАЙДЕР — фрейм под размер картинки -->
+        <section id="case-slider-section" class="w-full">
+
+            <!-- Hero: первый слайд / заглушка -->
+            <div id="case-slides-container" class="w-full">
+                <!-- слайды рендерятся JS-ом -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- МИНИБАР (фиксированный, поверх всего) -->
+    <div id="case-minibar">
+
+
+        <button class="minibar-btn" onclick="prevCase()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <span class="lang-en">Prev project</span><span class="lang-ru">Пред. проект</span>
+        </button>
+        <button class="minibar-btn" onclick="goHome()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10h5v-6h4v6h5V10"/></svg>
+            <span class="lang-en">Home</span><span class="lang-ru">Главная</span>
+        </button>
+        <button class="minibar-btn" onclick="nextCase()">
+            <span class="lang-en">Next project</span><span class="lang-ru">След. проект</span>
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+    </div>
+
+        <!-- ОБЩИЙ ПОДВАЛ -->
+<footer id="footer" class="bg-[#111111] pt-16 pb-8 flex flex-col items-center justify-center w-full mt-auto">
+    <div class="w-full px-4 mb-12">
+        <h1 class="font-bold text-center uppercase tracking-tighter leading-none text-white" 
+            style="font-size: 10vw; letter-spacing: -0.02em;">
+            ALEX RADUNTSEV
+        </h1>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between w-full px-6 md:px-10 gap-4 text-[8px] md:text-[10px] tracking-[0.2em] uppercase font-bold" 
+         style="color: #666666;">
+        
+        <div class="flex gap-4 items-center">
+            <span class="text-white/40">© 2026</span>
+        </div>
+
+        <div class="text-center md:text-left">
+            <span class="lang-en">SYSTEM DESIGN & ENGINEERING</span>
+            <span class="lang-ru">СИСТЕМНЫЙ ДИЗАЙН И ИНЖЕНЕРИЯ</span>
+        </div>
+
+        <div class="flex justify-between md:justify-end gap-4">
+            <span>
+                <span class="lang-en">BASED IN RUSSIA</span>
+                <span class="lang-ru">НАХОДИТСЯ В РОССИИ</span>
+            </span>
+        </div>
+    </div>
+</footer>
+
+    <!-- 🔥 AI АССИСТЕНТ (Кнопка и Окно) -->
+    <button onclick="toggleChat()" class="fixed bottom-6 left-6 z-[100] flex items-center justify-center text-brand-dark opacity-20 hover:opacity-100 transition-opacity duration-300 cursor-pointer">
+        <svg viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 drop-shadow-md">
+            <!-- Голова -->
+            <circle cx="12" cy="4.5" r="2.5"/>
+            <!-- Тело -->
+            <rect x="9.5" y="8" width="5" height="8"/>
+            <!-- Поднятая рука -->
+            <path d="M9.5 8.5 L5 2.5 L3 4 L7.5 10 Z"/>
+            <!-- Опущенная рука -->
+            <path d="M14.5 8.5 L19.5 13 L17.5 15 L12.5 10.5 Z"/>
+            <!-- Ноги -->
+            <rect x="9.5" y="16" width="2" height="7"/>
+            <rect x="12.5" y="16" width="2" height="7"/>
+        </svg>
+    </button>
+
+    <div id="ai-chat-window" class="fixed bottom-24 left-6 z-[100] w-80 md:w-96 bg-white border-2 border-brand-dark shadow-2xl flex-col hidden opacity-0 translate-y-4 transition-all duration-300 font-sans">
+        <div class="bg-brand-dark text-white p-4 flex justify-between items-center">
+            <span class="font-bold text-[10px] tracking-[0.2em] uppercase flex items-center gap-2">
+                <span class="text-lg">✨</span> 
+                <span class="lang-en">AI Assistant</span><span class="lang-ru">AI Ассистент</span>
+            </span>
+            <button onclick="toggleChat()" class="text-white hover:text-gray-400 text-lg leading-none">&times;</button>
+        </div>
+        <div id="chat-history" class="h-72 overflow-y-auto p-4 flex flex-col gap-4 bg-brand-light text-sm">
+            <div class="flex flex-col gap-1 items-start">
+                <span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">
+                    <span class="lang-en">Assistant</span><span class="lang-ru">Ассистент</span>
+                </span>
+                <div class="bg-white border border-gray-300 text-brand-dark p-3 text-xs leading-relaxed max-w-[85%]">
+                    <span class="lang-en">Hi! I'm Alex's digital assistant. I can tell you about his experience, tech stack, or collaboration terms. Ask a question!</span>
+                    <span class="lang-ru">Привет! Я цифровой помощник Алекса. Могу рассказать о его опыте, стеке технологий или условиях сотрудничества. Задавайте вопросы!</span>
+                </div>
+            </div>
+        </div>
+        <div class="p-3 bg-white border-t border-brand-dark flex gap-2">
+            <input type="text" id="chat-input" class="flex-1 border border-brand-dark px-3 py-2 text-xs outline-none focus:bg-gray-50 transition-colors" placeholder="Спросить о проектах..." onkeypress="handleChatEnter(event)">
+            <button onclick="sendChatMessage()" class="bg-brand-dark text-white px-4 hover:bg-black transition-colors font-bold uppercase text-[10px] tracking-widest">
+                <span class="lang-en">Send</span><span class="lang-ru">Отправить</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- СКРИПТЫ -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА
+        let currentLang = 'ru';
+
+        function toggleLanguage() {
+            if (currentLang === 'ru') {
+                currentLang = 'en';
+                document.body.classList.remove('lang-ru');
+                document.body.classList.add('lang-en');
+                document.getElementById('chat-input').placeholder = "Ask about projects...";
+            } else {
+                currentLang = 'ru';
+                document.body.classList.remove('lang-en');
+                document.body.classList.add('lang-ru');
+                document.getElementById('chat-input').placeholder = "Спросить о проектах...";
+            }
+
+            // Принудительное обновление текста в анимации Hero
+            const animatedHeroText = document.getElementById('animated-hero-text');
+            if(animatedHeroText) {
+                animatedHeroText.innerText = heroPhrases[currentLang][heroPhraseIndex];
+            }
+
+            // Если открыт кейс, обновляем его данные, чтобы переключить теги
+            if (!viewCase.classList.contains('view-hidden') && currentProjectId !== null) {
+                _openCaseCore(currentProjectId);
+            }
+
+            // Обновляем текст услуг если открана какая-то из них
+            if (activeServiceIndex !== null) {
+                updateDescription(activeServiceIndex);
+            }
+        }
+
+        // === SERVICE CAROUSEL WITH GOOEY EFFECT ===
+        const serviceData = [
+            {
+                labelRu: 'Веб-дизайн и разработка',
+                labelEn: 'Web design and development',
+                descRu: '<strong>Проектирование интерфейсов (UX/UI):</strong> Создание структуры сайтов, личных кабинетов и CRM. Разработка интерактивных прототипов в Figma и проработка логики переходов.<br><br><strong>Сборка сайтов на конструкторах:</strong> Полная настройка и запуск проектов на Tilda, Taplink, WordPress и современных ИИ-конструкторах.<br><br><strong>Фронтенд-разработка (Code):</strong> Вёрстка макетов на чистом коде (HTML, CSS, JavaScript). Создание нестандартных анимаций и адаптация под любые экраны.<br><br><strong>Редизайн и оптимизация:</strong> Переработка существующих интерфейсов для улучшения навигации, скорости работы и визуальной чистоты.',
+                descEn: '<strong>Interface design (UX/UI):</strong> Creating website structures, user dashboards, and CRMs. Developing interactive prototypes in Figma and logic mapping.<br><br><strong>Website builders:</strong> Full setup and launch of projects on Tilda, Taplink, WordPress, and modern AI builders.<br><br><strong>Frontend development (Code):</strong> Coding layouts from scratch (HTML, CSS, JavaScript). Creating custom animations and responsive adaptation.<br><br><strong>Redesign and optimization:</strong> Overhauling existing interfaces to improve navigation, performance, and visual clarity.'
+            },
+            {
+                labelRu: 'Графический дизайн и полиграфия',
+                labelEn: 'Graphic design and printing',
+                descRu: '<strong>Многостраничная вёрстка:</strong> Профессиональная подготовка книг, журналов, каталогов и брошюр в Adobe InDesign. Работа со сложными модульными сетками и стилями.<br><br><strong>Допечатная подготовка (Prepress):</strong> Подготовка макетов к печати в типографии с учётом технических требований (вылеты, цветовые профили, форматы).<br><br><strong>Брендинг и айдентика:</strong> Разработка логотипов, подбор фирменных цветов и шрифтов. Дизайн визиток и макетов наружной рекламы.<br><br><strong>Оформление соцсетей:</strong> Визуальный стиль для Telegram и Instagram, создание шаблонов постов и обложек.',
+                descEn: '<strong>Multipage layout:</strong> Professional preparation of books, magazines, catalogs, and brochures in Adobe InDesign. Working with complex grid systems and styles.<br><br><strong>Prepress:</strong> Preparing layouts for printing, taking into account technical requirements (bleeds, color profiles, formats).<br><br><strong>Branding and identity:</strong> Logo development, selection of corporate colors and fonts. Design of business cards and outdoor advertising.<br><br><strong>Social media design:</strong> Visual style for Telegram and Instagram, creation of post templates and covers.'
+            },
+            {
+                labelRu: 'Визуальный контент и 3D',
+                labelEn: 'Visual content and 3D',
+                descRu: '<strong>ИИ-фотосессии:</strong> Генерация предметных и портретных снимков по исходным фотографиям с помощью нейросетей для каталогов и соцсетей.<br><br><strong>Инфографика для маркетплейсов:</strong> Создание статичных и анимированных карточек товаров для Wildberries, Ozon и других площадок.<br><br><strong>3D-моделирование:</strong> Создание трёхмерных объектов, моделей механизмов и визуализация технических деталей в Blender или Autodesk Inventor.',
+                descEn: '<strong>AI photoshoots:</strong> Generating product and portrait images based on source photos using neural networks for catalogs and social media.<br><br><strong>Marketplace infographics:</strong> Creating static and animated product cards for e-commerce platforms.<br><br><strong>3D modeling:</strong> Creating 3D objects, mechanical models, and visualization of technical parts in Blender or Autodesk Inventor.'
+            },
+            {
+                labelRu: 'Менеджмент',
+                labelEn: 'Management',
+                descRu: '<strong>Ведение проектов:</strong> Сопровождение всех этапов работы в Miro, Notion или Jira. Соблюдение сроков и работа по методологиям Agile/Kanban.',
+                descEn: '<strong>Project Management:</strong> Oversight of all project stages in Miro, Notion, or Jira. Adherence to deadlines and work according to Agile/Kanban methodologies.'
+            }
+        ];
+
+        let activeServiceIndex = null;
+        const descContainer = document.getElementById('service-description-container');
+        const descText = document.getElementById('service-description-text');
+        const gooeyEffect = document.getElementById('service-gooey-effect');
+        const carouselContainer = document.getElementById('service-carousel-container');
+
+        function initServiceCarousel() {
+            const buttons = document.querySelectorAll('.service-btn');
+            buttons.forEach((btn, index) => {
+                btn.addEventListener('click', () => toggleService(index, btn));
+                btn.addEventListener('mouseenter', () => {
+                    if (activeServiceIndex === null) {
+                        hoverService(index, btn);
+                    }
+                });
+                btn.addEventListener('mouseleave', () => {
+                    if (activeServiceIndex === null) {
+                        unhoverService();
+                    }
+                });
+            });
+        }
+
+        function toggleService(index, btn) {
+            if (activeServiceIndex === index) {
+                closeService();
+            } else {
+                openService(index, btn);
+            }
+        }
+
+        function openService(index, btn) {
+            activeServiceIndex = index;
+            const buttons = document.querySelectorAll('.service-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            updateDescription(index);
+            showDescription();
+            applyGooeyEffect(btn);
+        }
+
+        function closeService() {
+            activeServiceIndex = null;
+            const buttons = document.querySelectorAll('.service-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            hideDescription();
+            hideGooeyEffect();
+        }
+
+        function hoverService(index, btn) {
+            updateDescription(index);
+            showDescription();
+            applyGooeyEffect(btn);
+        }
+
+        function unhoverService() {
+            hideDescription();
+            hideGooeyEffect();
+        }
+
+        function updateDescription(index) {
+            const desc = serviceData[index];
+            descText.innerHTML = currentLang === 'ru' ? desc.descRu : desc.descEn;
+        }
+
+        function showDescription() {
+            const newHeight = descContainer.querySelector('#service-description-text').scrollHeight + 32;
+            descContainer.style.maxHeight = newHeight + 'px';
+            descContainer.classList.add('show');
+        }
+
+        function hideDescription() {
+            descContainer.style.maxHeight = '0';
+            descContainer.classList.remove('show');
+        }
+
+        function applyGooeyEffect(btn) {
+            const rect = btn.getBoundingClientRect();
+            const containerRect = carouselContainer.getBoundingClientRect();
+            const x = rect.left - containerRect.left + rect.width / 2;
+            const y = rect.top - containerRect.top + rect.height / 2;
+            
+            gooeyEffect.style.left = (x - 48) + 'px';
+            gooeyEffect.style.top = (y - 48) + 'px';
+            gooeyEffect.style.opacity = '0.3';
+        }
+
+        function hideGooeyEffect() {
+            gooeyEffect.style.opacity = '0';
+        }
+
+        // Initialize carousel on page load
+        document.addEventListener('DOMContentLoaded', initServiceCarousel);
+
+
+        // SPA Навигация и Контент
+        const projects = [
+            { 
+                id: 1, 
+                title: '<span class="lang-en">PROJECT №1</span><span class="lang-ru">ПРОЕКТ №1</span>', 
+                category: '<span class="lang-en">WEB DESIGN & TAPLINK</span><span class="lang-ru">ВЕБ-ДИЗАЙН И TAPLINK</span>', 
+                heroImg: "https://i.ibb.co/v45XVkLC/sitephotoshot-hero.jpg", img1: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1000", img2: "https://images.unsplash.com/photo-1541462608143-67571c6738dd?auto=format&fit=crop&q=80&w=1000", img3: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000", 
+                desc: '<span class="lang-en">Development of visual guidelines and learning system architecture. Comprehensive redesign of corporate identity and interactive business card website layout.</span><span class="lang-ru">Разработка визуальных гайдлайнов и архитектуры системы обучения. Комплексный редизайн корпоративной айдентики и верстка интерактивного сайта-визитки.</span>', 
+                role: '<span class="lang-en">Lead Designer</span><span class="lang-ru">Ведущий дизайнер</span>' 
+            },
+            { 
+                id: 2, 
+                title: '<span class="lang-en">PROJECT №2</span><span class="lang-ru">ПРОЕКТ №2</span>', 
+                category: '<span class="lang-en">UX/UI & ARCHITECTURE</span><span class="lang-ru">UX/UI И АРХИТЕКТУРА</span>', 
+                heroImg: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&q=80&w=2000", img1: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1000", img2: "https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&q=80&w=1000", img3: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=1000", 
+                desc: '<span class="lang-en">Creation of visual concepts and UX/UI design of complex web applications. Deep analysis of user experience and interaction logic building.</span><span class="lang-ru">Создание визуальных концептов и UX/UI дизайн сложных веб-приложений. Глубокий анализ пользовательского опыта и построение логики взаимодействия.</span>', 
+                role: '<span class="lang-en">UX/UI Engineer</span><span class="lang-ru">UX/UI Инженер</span>' 
+            },
+            { 
+                id: 3, 
+                title: '<span class="lang-en">PROJECT №3</span><span class="lang-ru">ПРОЕКТ №3</span>', 
+                category: '<span class="lang-en">CRM REDESIGN</span><span class="lang-ru">РЕДИЗАЙН CRM</span>', 
+                heroImg: "https://images.unsplash.com/photo-1505322022379-7c3353ee6291?auto=format&fit=crop&q=80&w=2000", img1: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1000", img2: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000", img3: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80&w=1000", 
+                desc: '<span class="lang-en">Redesign of internal CRM system interfaces for a large company. Improving table readability, optimizing user flows, and implementing a design system.</span><span class="lang-ru">Редизайн интерфейсов CRM-систем. Улучшение читабельности таблиц, оптимизация пользовательских путей и внедрение дизайн-системы.</span>', 
+                role: '<span class="lang-en">Product Designer</span><span class="lang-ru">Продуктовый дизайнер</span>' 
+            },
+            { 
+                id: 4, 
+                title: '<span class="lang-en">PROJECT №4</span><span class="lang-ru">ПРОЕКТ №4</span>', 
+                category: '<span class="lang-en">BRANDING & IDENTITY</span><span class="lang-ru">БРЕНДИНГ И АЙДЕНТИКА</span>', 
+                heroImg: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&q=80&w=2000", img1: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=1000", img2: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&q=80&w=1000", img3: "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=1000", 
+                desc: '<span class="lang-en">Development of logos, identity, and outdoor advertising. Full cycle from sketches to print preparation.</span><span class="lang-ru">Разработка логотипов, айдентики и наружной рекламы. Полный цикл от скетчей до подготовки макетов в печать.</span>', 
+                role: '<span class="lang-en">Art Director</span><span class="lang-ru">Арт-директор</span>' 
+            },
+            { 
+                id: 5, 
+                title: '<span class="lang-en">PROJECT №5</span><span class="lang-ru">ПРОЕКТ №5</span>', 
+                category: '<span class="lang-en">3D MODELING & MOTION</span><span class="lang-ru">3D МОДЕЛИРОВАНИЕ И МОУШН</span>', 
+                heroImg: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&q=80&w=2000", img1: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1000", img2: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1000", img3: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&q=80&w=1000", 
+                desc: '<span class="lang-en">Creation of 3D objects, detailed mechanisms, and animations for web integration. Using Blender and After Effects.</span><span class="lang-ru">Создание 3D-объектов, детализированных механизмов и анимаций для интеграции в веб-интерфейсы. Использование Blender и After Effects.</span>', 
+                role: '<span class="lang-en">3D Motion Designer</span><span class="lang-ru">3D Моушн-дизайнер</span>' 
+            },
+            { 
+                id: 6, 
+                title: '<span class="lang-en">PROJECT №6</span><span class="lang-ru">ПРОЕКТ №6</span>', 
+                category: '<span class="lang-en">EDITORIAL DESIGN</span><span class="lang-ru">РЕДАКТОРСКИЙ ДИЗАЙН</span>', 
+                heroImg: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&q=80&w=2000", img1: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=1000", img2: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=1000", img3: "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=1000", 
+                desc: '<span class="lang-en">Professional layout of books, brochures, and albums. Working with grids, typography, and preparing for offset printing.</span><span class="lang-ru">Профессиональная верстка книг, брошюр и альбомов. Работа с сетками, типографикой и подготовка к офсетной печати.</span>', 
+                role: '<span class="lang-en">Editorial Designer</span><span class="lang-ru">Дизайнер-верстальщик</span>' 
+            },
+            { 
+                id: 7, 
+                title: '<span class="lang-en">PROJECT №7</span><span class="lang-ru">ПРОЕКТ №7</span>', 
+                category: '<span class="lang-en">AI PRODUCTION</span><span class="lang-ru">AI ПРОДАКШН</span>', 
+                heroImg: "https://images.unsplash.com/photo-1480796927426-f609979314bd?auto=format&fit=crop&q=80&w=2000", img1: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1000", img2: "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?auto=format&fit=crop&q=80&w=1000", img3: "https://images.unsplash.com/photo-1682687982501-1e58b814714c?auto=format&fit=crop&q=80&w=1000", 
+                desc: '<span class="lang-en">AI photoshoots, product photography, and creating animated infographics for marketplaces using neural networks.</span><span class="lang-ru">ИИ-фотосессии, предметная съемка и создание анимированной инфографики для маркетплейсов с помощью нейросетей.</span>', 
+                role: '<span class="lang-en">AI Prompt Engineer</span><span class="lang-ru">AI Промпт-инженер</span>' 
+            }
+        ];
+
+        let currentProjectId = null;
+        const viewHome = document.getElementById('view-home');
+        const viewCase = document.getElementById('view-case');
+
+        const cHero = document.getElementById('case-hero-img');
+        const cTitle = document.getElementById('case-title');
+        const cCat = document.getElementById('case-category');
+        const cDesc = document.getElementById('case-desc');
+        const cRole = document.getElementById('case-role');
+        const cImg1 = document.getElementById('case-detail-img-1');
+        const cImg2 = document.getElementById('case-detail-img-2');
+        const cImg3 = document.getElementById('case-detail-img-3');
+        const prevTitle = document.getElementById('prev-case-title');
+        const nextTitle = document.getElementById('next-case-title');
+
+        function goHome() {
+            viewCase.classList.remove('view-active');
+            viewCase.classList.add('view-hidden');
+            viewHome.classList.remove('view-hidden');
+            viewHome.classList.add('view-active');
+            var minibar = document.getElementById('case-minibar');
+            if (minibar) minibar.classList.remove('visible');
+            window.scrollTo(0, 0);
+        }
+
+        function _openCaseCore(id) {
+            const project = projects.find(p => p.id === id);
+            if (!project) return;
+            currentProjectId = id;
+
+            // Заголовок и категория больше не показываем в кейсе (слайдер без текста)
+            // Элементы могут отсутствовать — guard-чеки
+            if (cHero) cHero.src = project.heroImg;
+            if (cTitle) cTitle.innerHTML = project.title;
+            if (cCat) cCat.innerHTML = project.category;
+
+            // prev/next titles убраны из HTML — элементов нет, пропускаем
+
+            viewHome.classList.remove('view-active');
+            viewHome.classList.add('view-hidden');
+            viewCase.classList.remove('view-hidden');
+            viewCase.classList.add('view-active');
+            window.scrollTo(0, 0);
+        }
+
+        function prevCase() { openCase(currentProjectId === 1 ? projects.length : currentProjectId - 1); }
+        function nextCase() { openCase(currentProjectId === projects.length ? 1 : currentProjectId + 1); }
+
+        // =============================================
+        // СЛАЙДЕР КЕЙСА — ЛОГИКА
+        // =============================================
+
+        // Данные слайдов для каждого проекта.
+        // Добавляй ссылки сюда: projectSlides[id] = ["url1","url2",...]
+        const projectSlides = {
+            1: [
+                "https://i.ibb.co/d0QdZ7cH/Slice-2.jpg",
+                "https://i.ibb.co/3ycGWB85/Slice-3.jpg",
+                "https://i.ibb.co/cj3sqyb/Slice-4.jpg",
+                "https://i.ibb.co/whmc42cN/Slice-4-2.gif",
+                "https://i.ibb.co/mCXtrkVM/Slice-5.png",
+                "https://i.ibb.co/pjjHWgyF/Slice-6.jpg",
+                "https://i.ibb.co/5gDmgjs7/Slice-7.jpg",
+                "https://i.ibb.co/7xh3tq4v/Slice-8.png",
+                "https://i.ibb.co/vvRcBtbJ/Slice-8-1.gif",
+                "https://i.ibb.co/QFHk1b4j/Slice-8-2.jpg",
+                "https://i.ibb.co/1tLjWxJK/Slice-9.png",
+                "https://i.ibb.co/tp4dbCCY/Slice-10.gif",
+                "https://i.ibb.co/Z6tRhF11/Slice-11.jpg",
+                "https://i.ibb.co/RGdPbfm2/Slice-12.gif",
+                "https://i.ibb.co/G3P9Dhp9/Slice-13.jpg",
+                "https://i.ibb.co/7xfYkxMQ/Slice-14.gif",
+                "https://i.ibb.co/WNR1nsnj/Slice-15.gif",
+                "https://i.ibb.co/gZ8Y9677/Slice-16.gif",
+                "https://i.ibb.co/M5fW8sBS/Slice-17.gif"
+
+            ],
+            2: [
+                "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=1600"
+            ],
+            3: [
+                "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&q=80&w=1600"
+            ],
+            4: [
+                "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=1600"
+            ],
+            5: [
+                "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&q=80&w=1600"
+            ],
+            6: [
+                "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&q=80&w=1600"
+            ],
+            7: [
+                "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?auto=format&fit=crop&q=80&w=1600",
+                "https://images.unsplash.com/photo-1682687982501-1e58b814714c?auto=format&fit=crop&q=80&w=1600"
+            ]
+        };
+
+
+
+        function renderSlider(projectId) {
+            var slides = projectSlides[projectId] || [];
+            var container = document.getElementById('case-slides-container');
+            if (!container) return;
+            container.innerHTML = '';
+            slides.forEach(function(url, i) {
+                var slide = document.createElement('div');
+                slide.className = 'case-slide';
+                var img = document.createElement('img');
+                img.src = url;
+                img.alt = 'Image ' + (i + 1);
+                slide.appendChild(img);
+                container.appendChild(slide);
+            });
+        }
+
+
+
+        // Обёртка openCase: сбрасывает слайдер + рендерит
+        function openCase(id) {
+            _openCaseCore(id);
+            renderSlider(id);
+            document.getElementById('case-minibar').classList.add('visible');
+        }
+
+
+
+        // Анимация перекидного табло
+        const heroPhrases = {
+            en: ["BEST DECISION", "NEXT DESIGNER", "NEXT ART DIRECTOR", "NEXT CONTENT CREATOR", "NEXT CONSULTANT"],
+            ru: ["шрифт дышит", "хаос упорядочен", "смысл упакован", "глаз радуется", "выбор сделан"]
+        };
+        let heroPhraseIndex = 0;
+        const animatedHeroText = document.getElementById('animated-hero-text');
+        
+        // Устанавливаем начальное значение
+        animatedHeroText.innerText = heroPhrases[currentLang][heroPhraseIndex];
+
+        setInterval(() => {
+            if (!animatedHeroText) return;
+            animatedHeroText.style.transition = 'transform 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 0.4s ease-in';
+            animatedHeroText.style.transform = 'rotateX(-90deg)';
+            animatedHeroText.style.opacity = '0';
+            
+            setTimeout(() => {
+                heroPhraseIndex = (heroPhraseIndex + 1) % heroPhrases[currentLang].length;
+                animatedHeroText.innerText = heroPhrases[currentLang][heroPhraseIndex];
+                animatedHeroText.style.transition = 'none';
+                animatedHeroText.style.transform = 'rotateX(90deg)';
+                void animatedHeroText.offsetWidth;
+                animatedHeroText.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-out';
+                animatedHeroText.style.transform = 'rotateX(0deg)';
+                animatedHeroText.style.opacity = '1';
+            }, 400); 
+        }, 3500);
+
+        // ==============================================
+        // ФИЗИЧЕСКИЕ ДВИЖКИ MATTER.JS
+        // ==============================================
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initHeroPhysics();
+            initBasketballGame();
+        });
+
+        // 1. Физика Главного Экрана
+        function initHeroPhysics() {
+            const container = document.getElementById('physics-container');
+            const items = document.querySelectorAll('.physics-item');
+            if (!container || items.length === 0) return;
+
+            const { Engine, Runner, Bodies, Composite, Mouse, MouseConstraint, Events } = Matter;
+            const engine = Engine.create();
+            // Отключаем стандартную гравитацию вниз
+            engine.world.gravity.y = 0; 
+            engine.world.gravity.x = 0;
+
+            let width = container.clientWidth;
+            let height = container.clientHeight;
+
+            // Стены делаем чуть шире экрана, чтобы объекты не улетали насовсем
+            const wallOptions = { isStatic: true, render: { visible: false }, friction: 0 };
+            const ground = Bodies.rectangle(width / 2, height + 500, 10000, 100, wallOptions);
+            const ceiling = Bodies.rectangle(width / 2, -500, 10000, 100, wallOptions);
+            const leftWall = Bodies.rectangle(-500, height / 2, 100, 10000, wallOptions);
+            const rightWall = Bodies.rectangle(width + 500, height / 2, 100, 10000, wallOptions);
+
+            Composite.add(engine.world, [ground, ceiling, leftWall, rightWall]);
+
+            const domBodies = [];
+            items.forEach((el) => {
+                el.style.visibility = 'hidden'; 
+                const rect = el.getBoundingClientRect();
+                el.style.visibility = 'visible';
+                
+                const isCircle = el.dataset.type === 'circle';
+                // Спавним разбросанно по экрану
+                const startX = (width / 2) + (Math.random() - 0.5) * (width * 0.6);
+                const startY = (height / 2) + (Math.random() - 0.5) * (height * 0.6);
+
+                let body = isCircle 
+                    ? Bodies.circle(startX, startY, rect.width / 2, { restitution: 0.6, frictionAir: 0.015, friction: 0.1, density: 0.005 })
+                    : Bodies.rectangle(startX, startY, rect.width, rect.height, { chamfer: { radius: rect.height / 2 }, restitution: 0.5, frictionAir: 0.015, friction: 0.1, density: 0.001 });
+
+                Matter.Body.setAngle(body, (Math.random() - 0.5) * Math.PI);
+                
+                // Легкий начальный толчок в случайном направлении
+                Matter.Body.setVelocity(body, {
+                    x: (Math.random() - 0.5) * 5,
+                    y: (Math.random() - 0.5) * 5
+                });
+
+                domBodies.push({ body: body, elem: el, width: rect.width, height: rect.height });
+                Composite.add(engine.world, body);
+            });
+
+            const mouseConstraint = MouseConstraint.create(engine, {
+                mouse: Mouse.create(container),
+                constraint: { stiffness: 0.2, render: { visible: false } }
+            });
+            Composite.add(engine.world, mouseConstraint);
+
+            const preventScroll = [ "mousewheel", "DOMMouseScroll", "touchstart", "touchmove", "touchend" ];
+            preventScroll.forEach((event) => mouseConstraint.mouse.element.removeEventListener(event, mouseConstraint.mouse[event]));
+            
+            mouseConstraint.mouse.element.addEventListener("touchstart", mouseConstraint.mouse.mousedown, { passive: true });
+            mouseConstraint.mouse.element.addEventListener("touchmove", (e) => { if (mouseConstraint.body) e.preventDefault(); }, { passive: false });
+            mouseConstraint.mouse.element.addEventListener("touchend", (e) => { if (mouseConstraint.body) mouseConstraint.mouse.mouseup(e); });
+
+            // КАСТОМНАЯ ФИЗИКА (Притяжение к центру + орбитальное вращение)
+            Events.on(engine, 'beforeUpdate', function() {
+                const cx = width / 2;
+                const cy = height / 2;
+
+                domBodies.forEach(({ body }) => {
+                    // Если пользователь держит этот элемент, не применяем к нему нашу физику
+                    if (mouseConstraint.body === body) return;
+
+                    const dx = cx - body.position.x;
+                    const dy = cy - body.position.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+
+                    // 1. Сила притяжения (гравитация к центру)
+                    const attractionStrength = 0.000015;
+                    const forceX = dx * attractionStrength * body.mass;
+                    const forceY = dy * attractionStrength * body.mass;
+
+                    // 2. Тангенциальная сила (закручивание по орбите)
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    const orbitStrength = 0.0001; 
+                    // Перпендикулярный вектор
+                    const orbitX = -ny * orbitStrength * body.mass;
+                    const orbitY = nx * orbitStrength * body.mass;
+
+                    Matter.Body.applyForce(body, body.position, {
+                        x: forceX + orbitX,
+                        y: forceY + orbitY
+                    });
+                });
+            });
+
+            Runner.run(Runner.create(), engine);
+
+            function updateDOM() {
+                domBodies.forEach(({ body, elem, width, height }) => {
+                    elem.style.transform = `translate(${body.position.x - width / 2}px, ${body.position.y - height / 2}px) rotate(${body.angle}rad)`;
+                });
+                requestAnimationFrame(updateDOM);
+            }
+            updateDOM();
+
+            window.addEventListener('resize', () => {
+                width = container.clientWidth;
+                height = container.clientHeight;
+                Matter.Body.setPosition(rightWall, { x: width + 500, y: height / 2 });
+                Matter.Body.setPosition(leftWall, { x: -500, y: height / 2 });
+                Matter.Body.setPosition(ground, { x: width / 2, y: height + 500 });
+                Matter.Body.setPosition(ceiling, { x: width / 2, y: -500 });
+            });
+        }
+
+        // 2. Мини-игра "Баскетбол"
+function initBasketballGame() {
+    const container = document.getElementById('basketball-wrapper');
+    if (!container) return;
+
+    const { Engine, Render, Runner, Bodies, Composite, Body, Mouse, MouseConstraint, Events } = Matter;
+    const bEngine = Engine.create();
+
+    let bw = container.clientWidth;
+    let bh = container.clientHeight;
+
+    const bRender = Render.create({
+        element: container,
+        engine: bEngine,
+        options: { 
+            width: bw, 
+            height: bh, 
+            wireframes: false, 
+            background: 'transparent', 
+            pixelRatio: Math.min(window.devicePixelRatio, 2) 
+        }
+    });
+
+    function getHoopLayout(w, h) {
+        const isMobile = w < 600;
+        const isTablet = w >= 600 && w < 1024;
+        const scale    = isMobile ? 0.65 : isTablet ? 0.82 : 1;
+        const rimSpan  = Math.round(45 * scale);   
+        const rimR     = Math.round(6  * scale);   
+        const bbW      = Math.round(10 * scale);   
+        const bbH      = Math.round(140 * scale);  
+        const ballR    = Math.round(25 * scale);   
+        const hoopX = isMobile ? Math.round(w * 0.72) : Math.round(w * 0.78);
+        const hoopY = Math.round(h * 0.45);
+        const ballX = isMobile ? Math.round(w * 0.15) : Math.round(w * 0.12);
+        const ballY = Math.round(h * 0.35);
+        return { hoopX, hoopY, rimSpan, rimR, bbW, bbH, ballR, ballX, ballY, scale };
+    }
+
+    const wallOpt = { isStatic: true, render: { visible: false } };
+    let ground    = Bodies.rectangle(bw/2, bh + 50, bw * 3, 100, wallOpt);
+    let ceiling   = Bodies.rectangle(bw/2, -50,     bw * 3, 100, wallOpt);
+    let leftWall  = Bodies.rectangle(-50,  bh/2,    100, bh * 3, wallOpt);
+    let rightWall = Bodies.rectangle(bw+50, bh/2,   100, bh * 3, wallOpt);
+
+    // Стили для реалистичности
+    const rimStyle = { isStatic: true, render: { fillStyle: '#ff4500' } }; // Оранжевый металл
+    const boardStyle = { isStatic: true, render: { fillStyle: '#ffffff', strokeStyle: '#333', lineWidth: 2 } };
+
+    let layout = getHoopLayout(bw, bh);
+
+    // Функция создания элементов кольца
+    function createHoop(l) {
+        // Основной щит
+        const backboard = Bodies.rectangle(l.hoopX + l.rimSpan + l.bbW/2 + 2, l.hoopY - l.bbH/4, l.bbW, l.bbH, boardStyle);
+        
+        // Маленький прямоугольник на щите (разметка)
+        const innerBoard = Bodies.rectangle(l.hoopX + l.rimSpan + 2, l.hoopY - 15, 5, 40 * l.scale, { 
+            isStatic: true, isSensor: true, render: { fillStyle: '#ff4500' } 
+        });
+
+        // Дужки (передняя и задняя точки столкновения)
+        const rimLeft   = Bodies.circle(l.hoopX - l.rimSpan, l.hoopY, l.rimR, rimStyle);
+        const rimRight  = Bodies.circle(l.hoopX + l.rimSpan, l.hoopY, l.rimR, rimStyle);
+        
+        // Соединительная линия (визуальная перекладина кольца)
+        const rimBar = Bodies.rectangle(l.hoopX, l.hoopY, l.rimSpan * 2, 4 * l.scale, {
+            isStatic: true, isSensor: true, render: { fillStyle: '#ff4500' }
+        });
+
+        const netSensor = Bodies.rectangle(l.hoopX, l.hoopY + l.rimR + 10, l.rimSpan * 2 - l.rimR * 2, 8, { 
+            isStatic: true, isSensor: true, render: { visible: false } 
+        });
+
+        return { bodies: [backboard, innerBoard, rimBar, rimLeft, rimRight, netSensor], refs: { backboard, rimLeft, rimRight, netSensor } };
+    }
+
+    let hoop = createHoop(layout);
+
+    let ball = Bodies.circle(layout.ballX, layout.ballY, layout.ballR, {
+        restitution: 0.75, 
+        density: 0.005, 
+        frictionAir: 0.012, 
+        friction: 0.3,
+        render: { 
+            fillStyle: '#ff4500', 
+            strokeStyle: '#222', 
+            lineWidth: 2 // Текстура мяча (контур)
+        }
+    });
+
+    Composite.add(bEngine.world, [ground, ceiling, leftWall, rightWall, ...hoop.bodies, ball]);
+
+    // [Остальной код логики мыши и столкновений без изменений...]
+    const mouse = Mouse.create(bRender.canvas);
+    const mouseConstraint = MouseConstraint.create(bEngine, {
+        mouse,
+        constraint: { stiffness: 0.25, render: { visible: false } }
+    });
+    Composite.add(bEngine.world, mouseConstraint);
+
+    const preventScroll = ["mousewheel", "DOMMouseScroll", "touchstart", "touchmove", "touchend"];
+    preventScroll.forEach(ev => mouseConstraint.mouse.element.removeEventListener(ev, mouseConstraint.mouse[ev]));
+    mouseConstraint.mouse.element.addEventListener("touchstart", mouseConstraint.mouse.mousedown, { passive: true });
+    mouseConstraint.mouse.element.addEventListener("touchmove", (e) => { if (mouseConstraint.body) e.preventDefault(); }, { passive: false });
+    mouseConstraint.mouse.element.addEventListener("touchend", (e) => { if (mouseConstraint.body) mouseConstraint.mouse.mouseup(e); });
+
+    let score = 0;
+    const scoreEl = document.getElementById('score-counter');
+    let isUnlocked = false;
+
+    Events.on(bEngine, 'collisionStart', function(event) {
+        event.pairs.forEach((pair) => {
+            const { netSensor } = hoop.refs;
+            if ((pair.bodyA === ball && pair.bodyB === netSensor) || (pair.bodyB === ball && pair.bodyA === netSensor)) {
+                if (ball.velocity.y > 0 && !ball.isScoring) {
+                    ball.isScoring = true;
+                    score++;
+                    if (scoreEl) scoreEl.innerText = score;
+
+                    // --- ДОБАВЬ ЭТИ СТРОКИ ЗДЕСЬ ---
+                    if (!isUnlocked) {
+                        isUnlocked = true; // Чтобы не вызывать функцию повторно при каждом попадании
+                        unlockContactsUI();
+                    }
+                    // ------------------------------
+                    
+                    setTimeout(() => { 
+                        const l = getHoopLayout(bw, bh);
+                        Body.setPosition(ball, { x: l.ballX, y: l.ballY });
+                        Body.setVelocity(ball, { x: 0, y: 0 });
+                        Body.setAngularVelocity(ball, 0);
+                        ball.isScoring = false;
+                    }, 600); 
+                }
+            }
+        });
+    });
+
+    Render.run(bRender);
+    Runner.run(Runner.create(), bEngine);
+
+    Events.on(bEngine, 'beforeUpdate', function() {
+        if (ball.position.y > bh + 200 || ball.position.x < -100 || ball.position.x > bw + 100) {
+            const l = getHoopLayout(bw, bh);
+            Body.setPosition(ball, { x: l.ballX, y: l.ballY });
+            Body.setVelocity(ball, { x: 0, y: 0 });
+            Body.setAngularVelocity(ball, 0);
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        bw = container.clientWidth;
+        bh = container.clientHeight;
+        bRender.canvas.width = bw;
+        bRender.canvas.height = bh;
+        
+        const l = getHoopLayout(bw, bh);
+        Body.setPosition(ground, { x: bw/2, y: bh + 50 });
+        
+        Composite.remove(bEngine.world, hoop.bodies);
+        hoop = createHoop(l);
+        Composite.add(bEngine.world, hoop.bodies);
+
+        Body.setPosition(ball, { x: l.ballX, y: l.ballY });
+        Body.setVelocity(ball, { x: 0, y: 0 });
+        Mouse.setScale(mouse, { x: 1, y: 1 });
+    });
+}
+
+        function unlockContactsUI() {
+            const lockedUI = document.getElementById('locked-ui');
+            const unlockedContent = document.getElementById('unlocked-content');
+            const title = document.getElementById('challenge-title');
+            const desc = document.getElementById('challenge-desc');
+
+            lockedUI.style.opacity = '0';
+            setTimeout(() => {
+                lockedUI.classList.add('hidden');
+                unlockedContent.classList.remove('hidden');
+                void unlockedContent.offsetWidth;
+                unlockedContent.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                unlockedContent.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            }, 300);
+            
+            title.innerHTML = '<span class="lang-en">Great shot!</span><span class="lang-ru">Бляяее..стяще!</span>';
+            desc.innerHTML = '<span class="lang-en">Access granted. I would be glad to discuss your project.</span><span class="lang-ru">Вы забросили мяч. Доступ разрешен. Буду рад обсудить ваш проект и поделиться наработками.</span>';
+        }
+
+        // ==============================================
+        // AI АССИСТЕНТ (ЛОГИКА И API)
+        // ==============================================
+        let isChatOpen = false;
+        const chatWindow = document.getElementById('ai-chat-window');
+        const chatInput = document.getElementById('chat-input');
+        const chatHistory = document.getElementById('chat-history');
+
+        const apiKey = ""; 
+
+        const agentSystemPrompt = `Ты — ИИ-ассистент Алекса Радунцева. Алекс занимается системным веб-дизайном, UX/UI, 3D, брендингом и версткой. Он окончил ДВФУ по автоматизации процессов. Вне работы увлекается спелеологией и резьбой по дереву. Отвечай от его лица или как его помощник. Будь кратким, вежливым и профессиональным. Стиль общения: лаконичный, в духе брутализма.`;
+
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            if (isChatOpen) {
+                chatWindow.classList.remove('hidden');
+                setTimeout(() => {
+                    chatWindow.classList.remove('opacity-0', 'translate-y-4');
+                    chatWindow.classList.add('opacity-100', 'translate-y-0');
+                    chatInput.focus();
+                }, 10);
+            } else {
+                chatWindow.classList.remove('opacity-100', 'translate-y-0');
+                chatWindow.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => chatWindow.classList.add('hidden'), 300);
+            }
+        }
+
+        function appendMessage(sender, text, isError = false) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex flex-col gap-1 ${sender === 'user' ? 'items-end' : 'items-start'}`;
+            const label = document.createElement('span');
+            label.className = `text-[9px] font-bold uppercase tracking-widest ${sender === 'user' ? 'text-brand-dark' : 'text-gray-500'}`;
+            label.innerHTML = sender === 'user' ? '<span class="lang-en">You</span><span class="lang-ru">Вы</span>' : '<span class="lang-en">Assistant</span><span class="lang-ru">Ассистент</span>';
+            const bubble = document.createElement('div');
+            bubble.className = `p-3 text-xs leading-relaxed max-w-[85%] border ${sender === 'user' ? 'bg-brand-dark text-white border-brand-dark' : (isError ? 'bg-red-100 text-red-800 border-red-300' : 'bg-white text-brand-dark border-gray-300')}`;
+            bubble.innerText = text;
+            msgDiv.appendChild(label);
+            msgDiv.appendChild(bubble);
+            chatHistory.appendChild(msgDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function appendTypingIndicator() {
+            const id = 'typing-' + Date.now();
+            const msgDiv = document.createElement('div');
+            msgDiv.id = id;
+            msgDiv.className = 'flex flex-col gap-1 items-start';
+            msgDiv.innerHTML = `<span class="text-[9px] text-gray-500 font-bold uppercase tracking-widest"><span class="lang-en">Assistant</span><span class="lang-ru">Ассистент</span></span><div class="bg-white border border-gray-300 text-gray-500 p-3 text-xs leading-relaxed max-w-[85%]"><span class="lang-en">Typing...</span><span class="lang-ru">Печатает...</span></div>`;
+            chatHistory.appendChild(msgDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return id;
+        }
+
+        function removeElementById(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        async function callGemini(prompt) {
+            let retries = 5;
+            let delay = 1000;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const promptLangInstruct = currentLang === 'ru' ? "ОБЯЗАТЕЛЬНО отвечай на русском языке." : "MUST reply in English.";
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: agentSystemPrompt + " " + promptLangInstruct }] }
+            };
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Ошибка получения ответа.";
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(r => setTimeout(r, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        async function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            appendMessage('user', message);
+            chatInput.value = '';
+            chatInput.disabled = true;
+            const typingId = appendTypingIndicator();
+            try {
+                const response = await callGemini(`Пользователь спрашивает: "${message}"`);
+                removeElementById(typingId);
+                appendMessage('agent', response);
+            } catch (error) {
+                removeElementById(typingId);
+                const errorMsg = currentLang === 'ru' ? 'Сервер временно недоступен. Попробуйте позже.' : 'Server is temporarily unavailable. Try again later.';
+                appendMessage('agent', errorMsg, true);
+            } finally {
+
+                chatInput.disabled = false;
+            }
+        }
+
+        function handleChatEnter(event) {
+            if (event.key === 'Enter') sendChatMessage();
+        }
+
+        // === GALLERY LIGHTBOX FUNCTIONS ===
+        const galleryImages = [
+            'https://images.unsplash.com/photo-1544640808-32cb4fbbac8f?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1518002171953-a080ee817e1f?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1505322022379-7c3353ee6291?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&q=80&w=400'
+        ];
+
+        let currentGalleryImageIndex = 0;
+
+        function openGalleryLightbox(index) {
+            currentGalleryImageIndex = index;
+            const lightbox = document.getElementById('gallery-lightbox');
+            const image = document.getElementById('lightbox-image');
+            const counter = document.getElementById('lightbox-counter');
+            
+            image.src = galleryImages[currentGalleryImageIndex];
+            counter.textContent = `${currentGalleryImageIndex + 1} / ${galleryImages.length}`;
+            
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', handleGalleryKeyPress);
+        }
+
+        function closeGalleryLightbox(event) {
+            if (event && event.target.id !== 'gallery-lightbox') return;
+            
+            const lightbox = document.getElementById('gallery-lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+            document.removeEventListener('keydown', handleGalleryKeyPress);
+        }
+
+        function nextGalleryImage() {
+            currentGalleryImageIndex = (currentGalleryImageIndex + 1) % galleryImages.length;
+            updateGalleryImage();
+        }
+
+        function prevGalleryImage() {
+            currentGalleryImageIndex = (currentGalleryImageIndex - 1 + galleryImages.length) % galleryImages.length;
+            updateGalleryImage();
+        }
+
+        function updateGalleryImage() {
+            const image = document.getElementById('lightbox-image');
+            const counter = document.getElementById('lightbox-counter');
+            
+            image.style.opacity = '0';
+            setTimeout(() => {
+                image.src = galleryImages[currentGalleryImageIndex];
+                image.style.transition = 'opacity 0.3s ease';
+                image.style.opacity = '1';
+                counter.textContent = `${currentGalleryImageIndex + 1} / ${galleryImages.length}`;
+            }, 150);
+        }
+
+        function handleGalleryKeyPress(event) {
+            if (event.key === 'ArrowRight') nextGalleryImage();
+            if (event.key === 'ArrowLeft') prevGalleryImage();
+            if (event.key === 'Escape') closeGalleryLightbox({ target: { id: 'gallery-lightbox' } });
+        }
+
+        // Add initial opacity transition
+        document.addEventListener('DOMContentLoaded', () => {
+            const lightboxImage = document.getElementById('lightbox-image');
+            if (lightboxImage) {
+                lightboxImage.style.transition = 'opacity 0.3s ease';
+            }
+        });
+
+        let autoScrollTimer;
+const scrollInterval = 5000; // 5 секунд
+
+function scrollRoulette(containerOrButton, direction) {
+    // Определяем контейнер (работает и для кнопок, и для автопрокрутки)
+    const container = containerOrButton.tagName === 'BUTTON' 
+        ? containerOrButton.closest('.experience-card').querySelector('.roulette-container')
+        : containerOrButton;
+    
+    const scrollAmount = container.clientHeight;
+    const isAtEnd = container.scrollTop + scrollAmount >= container.scrollHeight - 10;
+
+    if (direction === 1 && isAtEnd) {
+        // Если дошли до конца — плавно возвращаемся в начало
+        container.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        container.scrollBy({ top: scrollAmount * direction, behavior: 'smooth' });
+    }
+}
+
+function startAutoScroll() {
+    // Запускаем цикл прокрутки
+    autoScrollTimer = setInterval(() => {
+        const container = document.getElementById('freelance-roulette');
+        if (container) scrollRoulette(container, 1);
+    }, scrollInterval);
+}
+
+function stopAutoScroll() {
+    // Останавливаем таймер
+    clearInterval(autoScrollTimer);
+}
+
+// Запускаем автопрокрутку при загрузке страницы
+document.addEventListener('DOMContentLoaded', startAutoScroll);
+
+window.onload = function() {
+    const tl = gsap.timeline();
+
+    // 1. Анимация отрисовки линий
+    tl.to(".wf-line", { strokeDashoffset: 0, duration: 2.2, stagger: 0.08, ease: "power2.inOut" });
+
+    // 2. Анимация текста с задержкой для второй строки
+    // Анимируем первую строку (индекс 0)
+    tl.to(".wf-text:nth-of-type(1)", { 
+        opacity: 1, 
+        duration: 0.5 
+    }, "-=1.2"); // Начинаем до завершения отрисовки линий
+
+    // Анимируем вторую строку (индекс 2 в структуре SVG после rect/line) 
+    // или просто через селектор nth-of-type
+    tl.to(".wf-text:nth-of-type(2)", { 
+        opacity: 1, 
+        duration: 0.5 
+    }, "+=0.3"); // Добавляем явную задержку 0.3с после появления первой строки
+
+    // 3. Появление кнопки
+    tl.to("#enter-btn", { autoAlpha: 1, y: -5, duration: 0.8 }, "-=0.2");
+
+    // 4. Физика падения при клике
+    document.getElementById('enter-btn').onclick = function() {
+        const preloader = document.getElementById('preloader');
+        const box = document.getElementById('phys-box');
+        const btn = document.getElementById('enter-btn');
+        
+        const boxRect = box.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+
+        [ {el: box, r: boxRect}, {el: btn, r: btnRect} ].forEach(item => {
+            item.el.style.position = 'fixed';
+            item.el.style.top = item.r.top + 'px';
+            item.el.style.left = item.r.left + 'px';
+            item.el.style.width = item.r.width + 'px';
+            item.el.style.margin = '0';
+            gsap.set(item.el, { x: 0, y: 0 });
+        });
+
+        const engine = Matter.Engine.create();
+        const boxBody = Matter.Bodies.rectangle(boxRect.left + boxRect.width/2, boxRect.top + boxRect.height/2, boxRect.width, boxRect.height, { restitution: 0.3, friction: 0.1 });
+        const btnBody = Matter.Bodies.rectangle(btnRect.left + btnRect.width/2, btnRect.top + btnRect.height/2, btnRect.width, btnRect.height, { restitution: 0.3, friction: 0.1 });
+
+        Matter.Composite.add(engine.world, [boxBody, btnBody]);
+        btn.style.pointerEvents = 'none';
+
+        (function update() {
+            Matter.Engine.update(engine);
+            box.style.transform = `translate(${boxBody.position.x - (boxRect.left + boxRect.width/2)}px, ${boxBody.position.y - (boxRect.top + boxRect.height/2)}px) rotate(${boxBody.angle}rad)`;
+            btn.style.transform = `translate(${btnBody.position.x - (btnRect.left + btnRect.width/2)}px, ${btnBody.position.y - (btnRect.top + btnRect.height/2)}px) rotate(${btnBody.angle}rad)`;
+            
+            if (boxBody.position.y < window.innerHeight + 1500) {
+                requestAnimationFrame(update);
+            }
+        })();
+
+        gsap.to(preloader, { 
+            backgroundColor: "transparent", 
+            duration: 1.2, 
+            delay: 0.3,
+            onComplete: () => {
+                preloader.style.display = 'none';
+                document.body.classList.remove('loading');
+            }
+        });
+        
+        gsap.to("main", { opacity: 1, duration: 1.5, delay: 0.5 });
+    };
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const observerOptions = {
+        threshold: 0.3, // Начинаем анимацию, когда 30% секции показалось
+        rootMargin: '0px 0px -50px 0px' // Слегка смещаем границу срабатывания вниз
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Чтобы не анимировать повторно
+            }
+        });
+    }, observerOptions);
+
+    // Выбираем все типы анимаций
+    const animatedElements = document.querySelectorAll('.reveal, .reveal-up, .reveal-left, .reveal-right');
+    animatedElements.forEach(el => observer.observe(el));
+});
+
+    </script>
+    <div id="magic-spotlight"></div>
+<script>
+(function() {
+    var GC = '255, 69, 0', SR = 340, PC = 9;
+    var sp = document.getElementById('magic-spotlight');
+    function getSecs() { return document.querySelectorAll('.magic-bento-section'); }
+    function getCards() { return document.querySelectorAll('.magic-card'); }
+    function inside(x, y) { for(var s of getSecs()){var r=s.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return true;}return false; }
+    function glowCard(c,mx,my){var r=c.getBoundingClientRect();var rx=((mx-r.left)/r.width)*100,ry=((my-r.top)/r.height)*100;var d=Math.max(0,Math.hypot(mx-r.left-r.width/2,my-r.top-r.height/2)-Math.max(r.width,r.height)/2);var p=SR*.5,f=SR*.88,i=d<=p?1:d<=f?(f-d)/(f-p):0;c.style.setProperty('--glow-x',rx.toFixed(1)+'%');c.style.setProperty('--glow-y',ry.toFixed(1)+'%');c.style.setProperty('--glow-intensity',i.toFixed(3));c.style.setProperty('--glow-radius',SR+'px');}
+    document.addEventListener('mousemove',function(e){var m=inside(e.clientX,e.clientY);if(sp){sp.style.left=e.clientX+'px';sp.style.top=e.clientY+'px';sp.style.opacity=m?'1':'0';}getCards().forEach(c=>m?glowCard(c,e.clientX,e.clientY):c.style.setProperty('--glow-intensity','0'));},{passive:true});
+    function particle(card){var r=card.getBoundingClientRect(),p=document.createElement('div');p.style.cssText='position:absolute;left:'+(Math.random()*(r.width-10)+5)+'px;top:'+(Math.random()*(r.height-10)+5)+'px;opacity:0;z-index:10;width:3px;height:3px;border-radius:50%;background:rgba('+GC+',1);box-shadow:0 0 8px rgba('+GC+',.7);pointer-events:none;';card.appendChild(p);var vx=(Math.random()-.5)*70,vy=(Math.random()-.5)*70,x=parseFloat(p.style.left),y=parseFloat(p.style.top),dur=1800+Math.random()*2000,st=null;function s(ts){if(!st)st=ts;var t=Math.min((ts-st)/dur,1),e=t<.5?2*t*t:-1+(4-2*t)*t;p.style.left=(x+vx*e)+'px';p.style.top=(y+vy*e)+'px';p.style.opacity=t<.35?(t/.35)*.8:t<.65?.8:((1-t)/.35)*.8;if(t<1&&p.parentNode&&card._pa)requestAnimationFrame(s);else if(p.parentNode)p.remove();}requestAnimationFrame(s);}
+    function ripple(card,e){var r=card.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,m=Math.max(Math.hypot(x,y),Math.hypot(x-r.width,y),Math.hypot(x,y-r.height),Math.hypot(x-r.width,y-r.height)),rp=document.createElement('div');rp.style.cssText='position:absolute;width:'+(m*2)+'px;height:'+(m*2)+'px;left:'+(x-m)+'px;top:'+(y-m)+'px;border-radius:50%;background:radial-gradient(circle,rgba('+GC+',.4) 0%,transparent 70%);pointer-events:none;z-index:100;';card.appendChild(rp);var st=null;(function a(ts){if(!st)st=ts;var t=Math.min((ts-st)/650,1);rp.style.transform='scale('+t+')';rp.style.opacity=1-t;if(t<1)requestAnimationFrame(a);else rp.remove();})(performance.now());}
+    function attach(){getCards().forEach(function(c){if(c._ma)return;c._ma=true;c._pa=false;var n=document.createElement('div');n.className='magic-noise';c.insertBefore(n,c.firstChild);c.addEventListener('mouseenter',function(){c._pa=true;for(var i=0;i<PC;i++)(function(d){setTimeout(function(){if(c._pa)particle(c);},d*90);})(i);c._iv=setInterval(function(){if(c._pa)particle(c);else clearInterval(c._iv);},280);});c.addEventListener('mouseleave',function(){c._pa=false;clearInterval(c._iv);c.querySelectorAll('.magic-particle').forEach(p=>p.remove());});c.addEventListener('click',function(e){ripple(c,e);});});}
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach);else attach();
+    setInterval(attach,1200);
+})();
+</script>
+
+</body>
+</html>
